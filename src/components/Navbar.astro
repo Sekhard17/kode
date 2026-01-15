@@ -30,7 +30,7 @@ const t = {
 const text = t[locale];
 ---
 
-<header id="navbar" class="fixed top-0 left-0 right-0 z-50 pt-4 px-4">
+<header id="navbar" class="fixed top-0 left-0 right-0 z-50">
     <nav class="navbar-container">
         <div class="container-custom flex items-center justify-between py-3">
             <!-- Logo -->
@@ -210,27 +210,16 @@ const text = t[locale];
 
 <style>
     .navbar-container {
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(0, 0, 0, 0.06);
-        border-radius: 16px;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     :global(.dark) .navbar-container {
-        background: rgba(10, 10, 10, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .navbar-container:hover {
-        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.06);
-    }
-
-    :global(.dark) .navbar-container:hover {
-        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+        background: rgba(10, 10, 10, 0.85);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .nav-link {
@@ -322,19 +311,6 @@ const text = t[locale];
         color: var(--text-primary);
         background: var(--bg-hover);
     }
-
-    /* Scroll effect */
-    #navbar.scrolled .navbar-container {
-        border-radius: 0;
-        margin: 0 -16px;
-        padding: 0 16px;
-    }
-
-    #navbar.scrolled {
-        padding-top: 0;
-        padding-left: 0;
-        padding-right: 0;
-    }
 </style>
 
 <script>
@@ -357,19 +333,4 @@ const text = t[locale];
             iconOpen?.classList.toggle("hidden");
             iconClose?.classList.toggle("hidden");
         });
-
-    // Navbar scroll effect
-    let lastScroll = 0;
-    window.addEventListener("scroll", () => {
-        const navbar = document.getElementById("navbar");
-        const currentScroll = window.scrollY;
-
-        if (currentScroll > 50) {
-            navbar?.classList.add("scrolled");
-        } else {
-            navbar?.classList.remove("scrolled");
-        }
-
-        lastScroll = currentScroll;
-    });
 </script>
