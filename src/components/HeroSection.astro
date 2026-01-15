@@ -1,7 +1,7 @@
 ---
 /**
- * Hero Section Component
- * Main hero with animated text and CTA
+ * Hero Section - Product Focused Design
+ * Minimal text, products are the star
  */
 
 interface Props {
@@ -12,197 +12,334 @@ const { locale = "es" } = Astro.props;
 
 const t = {
     es: {
-        title: "Nueva Colección",
-        subtitle: "Descubre las últimas tendencias en moda urbana premium",
-        cta: "Explorar Ahora",
-        ctaSecondary: "Ver Catálogo",
+        tagline: "Nueva Colección",
+        cta: "Explorar",
     },
     en: {
-        title: "New Collection",
-        subtitle: "Discover the latest trends in premium urban fashion",
-        cta: "Explore Now",
-        ctaSecondary: "View Catalog",
+        tagline: "New Collection",
+        cta: "Explore",
     },
 };
 
 const text = t[locale];
+
+const slides = [
+    { image: "/hero/Kode1.png", alt: "KØDE Collection" },
+    { image: "/hero/Kode2.png", alt: "KØDE Collection" },
+    { image: "/hero/Kode3.png", alt: "KØDE Collection" },
+];
 ---
 
-<section
-    class="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
->
-    <!-- Background gradient -->
-    <div
-        class="absolute inset-0 bg-gradient-to-br from-[var(--bg-secondary)] via-[var(--bg-primary)] to-[var(--bg-tertiary)]"
-    >
+<section class="hero">
+    <!-- Background Carousel - Full visibility -->
+    <div class="hero-carousel">
+        {
+            slides.map((slide, index) => (
+                <div
+                    class={`hero-slide ${index === 0 ? "active" : ""}`}
+                    data-slide={index}
+                >
+                    <img
+                        src={slide.image}
+                        alt={slide.alt}
+                        class="hero-image"
+                        loading={index === 0 ? "eager" : "lazy"}
+                    />
+                </div>
+            ))
+        }
+        <!-- Subtle gradient only at bottom for text -->
+        <div class="hero-gradient"></div>
     </div>
 
-    <!-- Animated background shapes -->
-    <div class="absolute inset-0 overflow-hidden">
-        <div class="hero-shape hero-shape-1"></div>
-        <div class="hero-shape hero-shape-2"></div>
-        <div class="hero-shape hero-shape-3"></div>
-    </div>
-
-    <!-- Content -->
-    <div class="relative z-10 container-custom text-center">
-        <div class="max-w-4xl mx-auto">
-            <!-- Badge -->
-            <div class="animate-slide-down mb-6">
-                <span
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--bg-tertiary)] text-sm font-medium"
-                >
-                    <span
-                        class="w-2 h-2 rounded-full bg-[var(--success)] animate-pulse"
-                    ></span>
-                    2024 Collection
-                </span>
-            </div>
-
-            <!-- Title -->
-            <h1
-                class="hero-title text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
-            >
-                <span
-                    class="block animate-slide-up"
-                    style="animation-delay: 100ms;">{text.title}</span
-                >
-            </h1>
-
-            <!-- Subtitle -->
-            <p
-                class="text-lg sm:text-xl md:text-2xl text-secondary max-w-2xl mx-auto mb-10 animate-slide-up"
-                style="animation-delay: 200ms;"
-            >
-                {text.subtitle}
-            </p>
-
-            <!-- CTAs -->
-            <div
-                class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up"
-                style="animation-delay: 300ms;"
-            >
-                <a href="/tienda" class="btn btn-primary text-lg px-8 py-4">
+    <!-- Minimal Content - Bottom Left -->
+    <div class="hero-content">
+        <div class="container-custom">
+            <div class="hero-text">
+                <span class="hero-tagline">{text.tagline}</span>
+                <a href="/tienda" class="hero-cta">
                     {text.cta}
                     <svg
-                        class="w-5 h-5"
+                        viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        viewBox="0 0 24 24"
+                        stroke-width="2"
                     >
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
+                        ></path>
                     </svg>
                 </a>
-                <a
-                    href="/categorias"
-                    class="btn btn-secondary text-lg px-8 py-4"
-                >
-                    {text.ctaSecondary}
-                </a>
-            </div>
-
-            <!-- Scroll indicator -->
-            <div
-                class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce"
-            >
-                <svg
-                    class="w-6 h-6 text-tertiary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                </svg>
             </div>
         </div>
+    </div>
+
+    <!-- Indicators - Bottom Right -->
+    <div class="hero-indicators">
+        {
+            slides.map((_, index) => (
+                <button
+                    class={`indicator ${index === 0 ? "active" : ""}`}
+                    data-indicator={index}
+                    aria-label={`Slide ${index + 1}`}
+                >
+                    <span class="indicator-progress" />
+                </button>
+            ))
+        }
     </div>
 </section>
 
 <style>
-    .hero-title {
-        background: linear-gradient(
-            135deg,
-            var(--text-primary) 0%,
-            var(--text-secondary) 50%,
-            var(--text-primary) 100%
-        );
-        background-size: 200% auto;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        animation: gradient-shift 8s ease infinite;
+    .hero {
+        position: relative;
+        width: 100%;
+        height: 100svh;
+        min-height: 500px;
+        overflow: hidden;
+        background: #000;
     }
 
-    @keyframes gradient-shift {
-        0%,
-        100% {
-            background-position: 0% center;
-        }
-        50% {
-            background-position: 100% center;
-        }
-    }
-
-    .hero-shape {
+    /* Carousel - Maximum visibility */
+    .hero-carousel {
         position: absolute;
-        border-radius: 50%;
-        filter: blur(100px);
-        opacity: 0.3;
+        inset: 0;
     }
 
-    .hero-shape-1 {
-        width: 600px;
-        height: 600px;
-        background: var(--accent-primary);
-        top: -200px;
-        right: -200px;
-        animation: float 20s ease-in-out infinite;
+    .hero-slide {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
     }
 
-    .hero-shape-2 {
-        width: 400px;
-        height: 400px;
-        background: var(--text-tertiary);
-        bottom: -100px;
-        left: -100px;
-        animation: float 25s ease-in-out infinite reverse;
+    .hero-slide.active {
+        opacity: 1;
     }
 
-    .hero-shape-3 {
-        width: 300px;
-        height: 300px;
-        background: var(--accent-secondary);
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        animation: float 15s ease-in-out infinite;
+    .hero-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
     }
 
-    @keyframes float {
-        0%,
-        100% {
-            transform: translate(0, 0);
-        }
-        25% {
-            transform: translate(30px, -30px);
-        }
-        50% {
-            transform: translate(-20px, 20px);
-        }
-        75% {
-            transform: translate(20px, 30px);
+    @media (max-width: 768px) {
+        .hero-image {
+            object-position: center 25%;
         }
     }
 
-    .dark .hero-shape {
-        opacity: 0.15;
+    /* Minimal gradient - only bottom */
+    .hero-gradient {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40%;
+        background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.6) 0%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        pointer-events: none;
+    }
+
+    /* Content - Bottom Left */
+    .hero-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        padding-bottom: 3rem;
+    }
+
+    @media (min-width: 768px) {
+        .hero-content {
+            padding-bottom: 4rem;
+        }
+    }
+
+    .hero-text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .hero-text {
+            align-items: center;
+            text-align: center;
+            width: 100%;
+        }
+    }
+
+    /* Tagline */
+    .hero-tagline {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.8);
+        animation: fadeIn 0.8s ease forwards;
+        animation-delay: 0.3s;
+        opacity: 0;
+    }
+
+    /* CTA */
+    .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 28px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        color: #000;
+        background: #fff;
+        border: none;
+        transition: all 0.3s ease;
+        animation: fadeSlideUp 0.8s ease forwards;
+        animation-delay: 0.5s;
+        opacity: 0;
+    }
+
+    .hero-cta:hover {
+        transform: translateX(4px);
+        box-shadow: 0 10px 40px rgba(255, 255, 255, 0.15);
+    }
+
+    .hero-cta svg {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.3s ease;
+    }
+
+    .hero-cta:hover svg {
+        transform: translateX(4px);
+    }
+
+    /* Indicators - Bottom Right */
+    .hero-indicators {
+        position: absolute;
+        bottom: 3rem;
+        right: 1.5rem;
+        display: flex;
+        gap: 8px;
+        z-index: 20;
+    }
+
+    @media (min-width: 768px) {
+        .hero-indicators {
+            bottom: 4rem;
+            right: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-indicators {
+            bottom: 3rem;
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+        }
+    }
+
+    .indicator {
+        width: 32px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.3);
+        border: none;
+        border-radius: 2px;
+        cursor: pointer;
+        overflow: hidden;
+        position: relative;
+        transition: background 0.3s ease;
+    }
+
+    .indicator:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    .indicator-progress {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 0;
+        background: #fff;
+        border-radius: 2px;
+    }
+
+    .indicator.active .indicator-progress {
+        animation: progress 5s linear forwards;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes progress {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
     }
 </style>
+
+<script>
+    const slides = document.querySelectorAll(".hero-slide");
+    const indicators = document.querySelectorAll(".indicator");
+    let currentSlide = 0;
+    let slideInterval: ReturnType<typeof setInterval>;
+
+    function goToSlide(index: number) {
+        slides.forEach((slide) => slide.classList.remove("active"));
+        indicators.forEach((ind) => ind.classList.remove("active"));
+        slides[index]?.classList.add("active");
+        indicators[index]?.classList.add("active");
+        currentSlide = index;
+    }
+
+    function nextSlide() {
+        goToSlide((currentSlide + 1) % slides.length);
+    }
+
+    function startAutoRotate() {
+        slideInterval = setInterval(nextSlide, 5000);
+    }
+
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener("click", () => {
+            goToSlide(index);
+            clearInterval(slideInterval);
+            startAutoRotate();
+        });
+    });
+
+    startAutoRotate();
+
+    const hero = document.querySelector(".hero");
+    hero?.addEventListener("mouseenter", () => clearInterval(slideInterval));
+    hero?.addEventListener("mouseleave", startAutoRotate);
+</script>
