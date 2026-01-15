@@ -21,7 +21,7 @@ const locale = (Astro.cookies.get("kode_locale")?.value as "es" | "en") || "es";
 >
 	<Navbar locale={locale} />
 
-	<main class="pt-[104px]">
+	<main>
 		<HeroSection locale={locale} />
 		<CategoriesSection locale={locale} />
 		<FeaturedProducts locale={locale} />
