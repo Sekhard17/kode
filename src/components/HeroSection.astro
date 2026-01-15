@@ -1,7 +1,7 @@
 ---
 /**
- * Hero Section - Product Focused Design
- * Minimal text, products are the star
+ * Hero Section - Glass Card Design
+ * Content in glassmorphism card, bottom left
  */
 
 interface Props {
@@ -12,12 +12,18 @@ const { locale = "es" } = Astro.props;
 
 const t = {
     es: {
-        tagline: "Nueva Colección",
-        cta: "Explorar",
+        tagline: "Nueva Colección 2026",
+        title: "Redefine tu estilo",
+        subtitle:
+            "Streetwear premium con diseños exclusivos que fusionan la esencia urbana con elegancia contemporánea.",
+        cta: "Ver Colección",
     },
     en: {
-        tagline: "New Collection",
-        cta: "Explore",
+        tagline: "New Collection 2026",
+        title: "Redefine your style",
+        subtitle:
+            "Premium streetwear with exclusive designs that merge urban essence with contemporary elegance.",
+        cta: "Shop Collection",
     },
 };
 
@@ -31,7 +37,7 @@ const slides = [
 ---
 
 <section class="hero">
-    <!-- Background Carousel - Full visibility -->
+    <!-- Background Carousel -->
     <div class="hero-carousel">
         {
             slides.map((slide, index) => (
@@ -48,35 +54,33 @@ const slides = [
                 </div>
             ))
         }
-        <!-- Subtle gradient only at bottom for text -->
-        <div class="hero-gradient"></div>
     </div>
 
-    <!-- Minimal Content - Bottom Left -->
+    <!-- Content -->
     <div class="hero-content">
-        <div class="container-custom">
-            <div class="hero-text">
-                <span class="hero-tagline">{text.tagline}</span>
-                <a href="/tienda" class="hero-cta">
-                    {text.cta}
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
-                        ></path>
-                    </svg>
-                </a>
-            </div>
+        <!-- Glass Card -->
+        <div class="hero-card">
+            <span class="hero-tagline">{text.tagline}</span>
+            <h1 class="hero-title">{text.title}</h1>
+            <p class="hero-subtitle">{text.subtitle}</p>
+            <a href="/tienda" class="hero-cta">
+                <span>{text.cta}</span>
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"></path>
+                </svg>
+            </a>
         </div>
     </div>
 
-    <!-- Indicators - Bottom Right -->
+    <!-- Indicators -->
     <div class="hero-indicators">
         {
             slides.map((_, index) => (
@@ -84,9 +88,7 @@ const slides = [
                     class={`indicator ${index === 0 ? "active" : ""}`}
                     data-indicator={index}
                     aria-label={`Slide ${index + 1}`}
-                >
-                    <span class="indicator-progress" />
-                </button>
+                />
             ))
         }
     </div>
@@ -97,12 +99,12 @@ const slides = [
         position: relative;
         width: 100%;
         height: 100svh;
-        min-height: 500px;
+        min-height: 600px;
         overflow: hidden;
         background: #000;
     }
 
-    /* Carousel - Maximum visibility */
+    /* Carousel */
     .hero-carousel {
         position: absolute;
         inset: 0;
@@ -128,66 +130,92 @@ const slides = [
 
     @media (max-width: 768px) {
         .hero-image {
-            object-position: center 25%;
+            object-position: center 30%;
         }
     }
 
-    /* Minimal gradient - only bottom */
-    .hero-gradient {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 40%;
-        background: linear-gradient(
-            to top,
-            rgba(0, 0, 0, 0.6) 0%,
-            rgba(0, 0, 0, 0) 100%
-        );
-        pointer-events: none;
-    }
-
-    /* Content - Bottom Left */
+    /* Content */
     .hero-content {
         position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        bottom: 4rem;
+        left: 2rem;
         z-index: 10;
-        padding-bottom: 3rem;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 1024px) {
         .hero-content {
-            padding-bottom: 4rem;
+            left: 4rem;
+            bottom: 5rem;
         }
-    }
-
-    .hero-text {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
     }
 
     @media (max-width: 768px) {
-        .hero-text {
-            align-items: center;
-            text-align: center;
-            width: 100%;
+        .hero-content {
+            left: 1rem;
+            right: 1rem;
+            bottom: 5rem;
+        }
+    }
+
+    /* Glass Card */
+    .hero-card {
+        max-width: 440px;
+        padding: 2rem;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        animation: cardSlideUp 0.8s ease forwards;
+        animation-delay: 0.2s;
+        opacity: 0;
+    }
+
+    @media (min-width: 768px) {
+        .hero-card {
+            padding: 2.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-card {
+            max-width: 100%;
+            border-radius: 16px;
         }
     }
 
     /* Tagline */
     .hero-tagline {
-        font-size: 0.8125rem;
-        font-weight: 500;
-        letter-spacing: 0.15em;
+        display: inline-block;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.2em;
         text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.8);
-        animation: fadeIn 0.8s ease forwards;
-        animation-delay: 0.3s;
-        opacity: 0;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 1rem;
+    }
+
+    /* Title */
+    .hero-title {
+        font-size: clamp(1.75rem, 5vw, 2.5rem);
+        font-weight: 700;
+        line-height: 1.1;
+        color: #fff;
+        margin-bottom: 1rem;
+    }
+
+    /* Subtitle */
+    .hero-subtitle {
+        font-size: 0.9375rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .hero-subtitle {
+            font-size: 0.875rem;
+        }
     }
 
     /* CTA */
@@ -195,27 +223,24 @@ const slides = [
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        padding: 14px 28px;
-        font-size: 0.875rem;
+        padding: 12px 24px;
+        font-size: 0.8125rem;
         font-weight: 600;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.02em;
         color: #000;
         background: #fff;
-        border: none;
+        border-radius: 8px;
         transition: all 0.3s ease;
-        animation: fadeSlideUp 0.8s ease forwards;
-        animation-delay: 0.5s;
-        opacity: 0;
     }
 
     .hero-cta:hover {
-        transform: translateX(4px);
-        box-shadow: 0 10px 40px rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
     }
 
     .hero-cta svg {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         transition: transform 0.3s ease;
     }
 
@@ -223,28 +248,28 @@ const slides = [
         transform: translateX(4px);
     }
 
-    /* Indicators - Bottom Right */
+    /* Indicators */
     .hero-indicators {
         position: absolute;
-        bottom: 3rem;
-        right: 1.5rem;
+        bottom: 4rem;
+        right: 2rem;
         display: flex;
         gap: 8px;
         z-index: 20;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 1024px) {
         .hero-indicators {
-            bottom: 4rem;
-            right: 2rem;
+            bottom: 5rem;
+            right: 4rem;
         }
     }
 
     @media (max-width: 768px) {
         .hero-indicators {
-            bottom: 3rem;
-            left: 50%;
+            bottom: 1.5rem;
             right: auto;
+            left: 50%;
             transform: translateX(-50%);
         }
     }
@@ -256,16 +281,13 @@ const slides = [
         border: none;
         border-radius: 2px;
         cursor: pointer;
-        overflow: hidden;
+        transition: all 0.3s ease;
         position: relative;
-        transition: background 0.3s ease;
+        overflow: hidden;
     }
 
-    .indicator:hover {
-        background: rgba(255, 255, 255, 0.5);
-    }
-
-    .indicator-progress {
+    .indicator::after {
+        content: "";
         position: absolute;
         left: 0;
         top: 0;
@@ -275,21 +297,19 @@ const slides = [
         border-radius: 2px;
     }
 
-    .indicator.active .indicator-progress {
+    .indicator.active::after {
         animation: progress 5s linear forwards;
     }
 
-    /* Animations */
-    @keyframes fadeIn {
-        to {
-            opacity: 1;
-        }
+    .indicator:hover {
+        background: rgba(255, 255, 255, 0.5);
     }
 
-    @keyframes fadeSlideUp {
+    /* Animations */
+    @keyframes cardSlideUp {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(40px);
         }
         to {
             opacity: 1;
