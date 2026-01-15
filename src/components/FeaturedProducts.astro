@@ -1,0 +1,94 @@
+---
+/**
+ * Featured Products Section
+ * Displays featured products from API with currency-aware pricing
+ */
+
+import ProductCard from "./ProductCard.astro";
+import type { ProductListDto } from "../types";
+
+interface Props {
+    locale?: "es" | "en";
+}
+
+const { locale = "es" } = Astro.props;
+
+const t = {
+    es: {
+        title: "Productos Destacados",
+        viewAll: "Ver Todo",
+        loading: "Cargando productos...",
+        error: "Error al cargar productos",
+    },
+    en: {
+        title: "Featured Products",
+        viewAll: "View All",
+        loading: "Loading products...",
+        error: "Error loading products",
+    },
+};
+
+const text = t[locale];
+
+// Fetch featured products from API
+let products: ProductListDto[] = [];
+let error = false;
+
+try {
+    const res = await fetch(
+        "http://localhost:5133/api/products?isFeatured=true&pageSize=8",
+    );
+    if (res.ok) {
+        const data = await res.json();
+        products = data.items || [];
+    } else {
+        error = true;
+    }
+} catch (e) {
+    error = true;
+    console.error("Error fetching products:", e);
+}
+---
+
+<section class="section bg-primary">
+    <div class="container-custom">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-10">
+            <h2 class="text-3xl md:text-4xl font-bold">{text.title}</h2>
+            <a href="/tienda" class="btn btn-secondary text-sm">
+                {text.viewAll}
+                <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Products Grid -->
+        {
+            error ? (
+                <div class="text-center py-16">
+                    <p class="text-tertiary">{text.error}</p>
+                </div>
+            ) : products.length === 0 ? (
+                <div class="text-center py-16">
+                    <p class="text-tertiary">{text.loading}</p>
+                </div>
+            ) : (
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {products.map((product) => (
+                        <ProductCard product={product} locale={locale} />
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</section>

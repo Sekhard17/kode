@@ -9,7 +9,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.16.9"
+    "astro": "^5.16.9",
+    "axios": "^1.13.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.23",

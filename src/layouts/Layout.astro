@@ -1,26 +1,65 @@
 ---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = "KØDE | Streetwear Premium", 
+  description = "Descubre la mejor colección de ropa urbana premium. Hoodies, poleras y más."
+} = Astro.props;
+
 import "../styles/global.css";
 ---
 
 <!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <meta name="generator" content={Astro.generator} />
-        <title>Astro Basics</title>
-    </head>
-    <body>
-        <slot />
-    </body>
+<html lang="es" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    
+    <title>{title}</title>
+    
+    <!-- Prevent flash of wrong theme -->
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('kode_theme') || 
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(theme);
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen">
+    <slot />
+    
+    <!-- Initialize preferences -->
+    <script>
+      import { initLocale } from '../lib/i18n';
+      import { initCurrency } from '../lib/currency';
+      
+      // Initialize on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        initLocale();
+        initCurrency();
+      });
+    </script>
+  </body>
 </html>
 
 <style>
-    html,
-    body {
-        margin: 0;
-        width: 100%;
-        height: 100%;
-    }
+  html, body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+  }
 </style>

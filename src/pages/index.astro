@@ -1,11 +1,75 @@
 ---
-import Welcome from "../components/Welcome.astro";
-import Layout from "../layouts/Layout.astro";
+/**
+ * KØDE Homepage
+ * Main landing page with all sections
+ */
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import HeroSection from "../components/HeroSection.astro";
+import CategoriesSection from "../components/CategoriesSection.astro";
+import FeaturedProducts from "../components/FeaturedProducts.astro";
+import Footer from "../components/Footer.astro";
+
+// Get locale from cookie or default to 'es'
+const locale = (Astro.cookies.get("kode_locale")?.value as "es" | "en") || "es";
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+	title="KØDE | Streetwear Premium Chile"
+	description="Descubre la mejor colección de ropa urbana premium. Hoodies, poleras y más. Envío gratis en compras sobre $50.000."
+>
+	<Navbar locale={locale} />
+
+	<main class="pt-[104px]">
+		<HeroSection locale={locale} />
+		<CategoriesSection locale={locale} />
+		<FeaturedProducts locale={locale} />
+
+		<!-- Newsletter CTA -->
+		<section class="section bg-tertiary">
+			<div class="container-custom text-center">
+				<h2 class="text-3xl md:text-4xl font-bold mb-4">
+					{
+						locale === "es"
+							? "Únete a la comunidad KØDE"
+							: "Join the KØDE community"
+					}
+				</h2>
+				<p class="text-secondary max-w-xl mx-auto mb-8">
+					{
+						locale === "es"
+							? "Sé el primero en conocer nuevos lanzamientos, ofertas exclusivas y más."
+							: "Be the first to know about new releases, exclusive offers and more."
+					}
+				</p>
+				<form
+					class="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto"
+				>
+					<input
+						type="email"
+						placeholder={locale === "es"
+							? "Tu email"
+							: "Your email"}
+						class="w-full sm:flex-1 px-6 py-3 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-color)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors"
+						required
+					/>
+					<button
+						type="submit"
+						class="w-full sm:w-auto btn btn-primary"
+					>
+						{locale === "es" ? "Suscribirse" : "Subscribe"}
+					</button>
+				</form>
+			</div>
+		</section>
+	</main>
+
+	<Footer locale={locale} />
 </Layout>
+
+<style>
+	.bg-tertiary {
+		background-color: var(--bg-tertiary);
+	}
+</style>
