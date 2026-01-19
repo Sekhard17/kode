@@ -1,7 +1,7 @@
 ---
 /**
- * Navbar Component - Premium Minimal Design
- * Clean, elegant, floating navbar with glassmorphism
+ * Navbar Component - Professional Minimal Design
+ * Clean, elegant navbar optimized for both desktop and mobile
  */
 
 interface Props {
@@ -16,267 +16,335 @@ const t = {
         men: "Hombre",
         women: "Mujer",
         new: "Nuevo",
-        search: "Buscar...",
+        search: "Buscar",
+        theme: "Tema",
+        wishlist: "Favoritos",
+        cart: "Carrito",
+        login: "Ingresar",
+        account: "Mi cuenta",
     },
     en: {
         shop: "Shop",
         men: "Men",
         women: "Women",
         new: "New",
-        search: "Search...",
+        search: "Search",
+        theme: "Theme",
+        wishlist: "Wishlist",
+        cart: "Cart",
+        login: "Sign In",
+        account: "Account",
     },
 };
 
 const text = t[locale];
 ---
 
-<header id="navbar" class="fixed top-0 left-0 right-0 z-50">
-    <nav class="navbar-container">
-        <div class="container-custom flex items-center justify-between py-3">
-            <!-- Logo -->
-            <a href="/" class="flex items-center group">
-                <img
-                    id="logo-light"
-                    src="/LogoModoClaro.png"
-                    alt="KØDE"
-                    class="h-8 w-auto transition-transform duration-300 group-hover:scale-105 dark:hidden"
-                />
-                <img
-                    id="logo-dark"
-                    src="/LogoModoOscuro.png"
-                    alt="KØDE"
-                    class="h-8 w-auto transition-transform duration-300 group-hover:scale-105 hidden dark:block"
-                />
+<header class="navbar">
+    <div class="navbar__inner">
+        <!-- Logo -->
+        <a href="/" class="navbar__logo">
+            <img src="/LogoModoClaro.png" alt="KØDE" class="logo-light" />
+            <img src="/LogoModoOscuro.png" alt="KØDE" class="logo-dark" />
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="navbar__nav">
+            <a href="/tienda" class="navbar__link">{text.shop}</a>
+            <a href="/hombre" class="navbar__link">{text.men}</a>
+            <a href="/mujer" class="navbar__link">{text.women}</a>
+            <a href="/nuevo" class="navbar__link">
+                {text.new}
+                <span class="badge-new">NEW</span>
+            </a>
+        </nav>
+
+        <!-- Desktop Actions -->
+        <div class="navbar__actions">
+            <!-- Icon buttons with tooltips -->
+            <button id="search-btn" class="icon-btn" data-tooltip={text.search}>
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                    ></path>
+                </svg>
+            </button>
+
+            <button id="theme-btn" class="icon-btn" data-tooltip={text.theme}>
+                <svg
+                    class="icon-sun"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+                    ></path>
+                </svg>
+                <svg
+                    class="icon-moon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+                    ></path>
+                </svg>
+            </button>
+
+            <a href="/favoritos" class="icon-btn" data-tooltip={text.wishlist}>
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                    ></path>
+                </svg>
             </a>
 
-            <!-- Desktop Navigation - Center -->
-            <div class="hidden md:flex items-center gap-10">
-                <a href="/tienda" class="nav-link">{text.shop}</a>
-                <a href="/hombre" class="nav-link">{text.men}</a>
-                <a href="/mujer" class="nav-link">{text.women}</a>
-                <a href="/nuevo" class="nav-link group">
-                    {text.new}
-                    <span class="new-badge">NEW</span>
-                </a>
-            </div>
-
-            <!-- Right Actions -->
-            <div class="flex items-center gap-2">
-                <!-- Search -->
-                <button
-                    id="search-toggle"
-                    class="nav-icon-btn"
-                    aria-label="Buscar"
+            <a href="/carrito" class="icon-btn" data-tooltip={text.cart}>
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
                 >
-                    <svg
-                        class="w-[18px] h-[18px]"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                        ></path>
-                    </svg>
-                </button>
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                    ></path>
+                </svg>
+                <span id="cart-badge" class="cart-badge">0</span>
+            </a>
 
-                <!-- Theme Toggle -->
-                <button
-                    id="theme-toggle"
-                    class="nav-icon-btn"
-                    aria-label="Cambiar tema"
-                >
-                    <svg
-                        id="sun-icon"
-                        class="w-[18px] h-[18px] hidden dark:block"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
-                        ></path>
-                    </svg>
-                    <svg
-                        id="moon-icon"
-                        class="w-[18px] h-[18px] block dark:hidden"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
-                        ></path>
-                    </svg>
-                </button>
-
-                <!-- User -->
-                <a href="/cuenta" class="nav-icon-btn" aria-label="Mi cuenta">
-                    <svg
-                        class="w-[18px] h-[18px]"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                        ></path>
-                    </svg>
-                </a>
-
-                <!-- Cart -->
-                <a
-                    href="/carrito-compras"
-                    class="nav-icon-btn relative"
-                    aria-label="Carrito"
-                >
-                    <svg
-                        class="w-[18px] h-[18px]"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-                        ></path>
-                    </svg>
-                    <span id="cart-count" class="cart-badge hidden">0</span>
-                </a>
-
-                <!-- Mobile Menu Toggle -->
-                <button
-                    id="mobile-menu-toggle"
-                    class="nav-icon-btn md:hidden ml-1"
-                    aria-label="Menú"
-                >
-                    <svg
-                        id="menu-icon"
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                    >
-                        <path
-                            id="menu-icon-open"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M3.75 9h16.5m-16.5 6.75h16.5"></path>
-                        <path
-                            id="menu-icon-close"
-                            class="hidden"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
+            <!-- Login Button -->
+            <a href="/ingresar" class="btn-login">{text.login}</a>
         </div>
 
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="md:hidden hidden overflow-hidden">
-            <div
-                class="py-4 px-2 flex flex-col gap-1 border-t border-[var(--border-color)]/50"
-            >
-                <a href="/tienda" class="mobile-nav-link">{text.shop}</a>
-                <a href="/hombre" class="mobile-nav-link">{text.men}</a>
-                <a href="/mujer" class="mobile-nav-link">{text.women}</a>
-                <a href="/nuevo" class="mobile-nav-link">
-                    {text.new}
-                    <span class="new-badge ml-2">NEW</span>
-                </a>
-            </div>
+        <!-- Mobile: Menu Button -->
+        <button id="menu-btn" class="menu-btn">
+            <span class="menu-line"></span>
+            <span class="menu-line"></span>
+        </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu">
+        <nav class="mobile-menu__nav">
+            <a href="/tienda">{text.shop}</a>
+            <a href="/hombre">{text.men}</a>
+            <a href="/mujer">{text.women}</a>
+            <a href="/nuevo">{text.new} <span class="badge-new">NEW</span></a>
+        </nav>
+        <div class="mobile-menu__divider"></div>
+        <div class="mobile-menu__actions">
+            <a href="/favoritos">{text.wishlist}</a>
+            <a href="/cuenta">{text.account}</a>
         </div>
-    </nav>
+        <a href="/ingresar" class="mobile-menu__login">{text.login}</a>
+    </div>
 </header>
 
 <style>
-    .navbar-container {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    :global(.dark) .navbar-container {
-        background: rgba(10, 10, 10, 0.85);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    :global(.dark) .navbar {
+        background: rgba(10, 10, 10, 0.92);
+        border-bottom-color: rgba(255, 255, 255, 0.06);
     }
 
-    .nav-link {
+    .navbar__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        height: 64px;
+    }
+
+    /* Logo */
+    .navbar__logo {
+        flex-shrink: 0;
+    }
+
+    .navbar__logo img {
+        height: 28px;
+        width: auto;
+    }
+
+    .logo-light {
+        display: block;
+    }
+    .logo-dark {
+        display: none;
+    }
+    :global(.dark) .logo-light {
+        display: none;
+    }
+    :global(.dark) .logo-dark {
+        display: block;
+    }
+
+    /* Desktop Nav */
+    .navbar__nav {
+        display: none;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    @media (min-width: 1024px) {
+        .navbar__nav {
+            display: flex;
+        }
+    }
+
+    .navbar__link {
         position: relative;
-        color: var(--text-secondary);
-        font-size: 0.8125rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.875rem;
         font-weight: 500;
-        letter-spacing: 0.02em;
-        transition: color 0.2s ease;
+        color: var(--text-secondary);
+        transition: color 0.2s;
     }
 
-    .nav-link:hover {
+    .navbar__link:hover {
         color: var(--text-primary);
     }
 
-    .nav-link::after {
+    .navbar__link::after {
         content: "";
         position: absolute;
-        bottom: -4px;
         left: 0;
+        bottom: -6px;
         width: 0;
-        height: 1px;
+        height: 1.5px;
         background: var(--text-primary);
-        transition: width 0.3s ease;
+        transition: width 0.25s ease;
     }
 
-    .nav-link:hover::after {
+    .navbar__link:hover::after {
         width: 100%;
     }
 
-    .new-badge {
-        display: inline-flex;
-        align-items: center;
-        margin-left: 6px;
+    .badge-new {
         padding: 2px 6px;
         font-size: 9px;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+        font-weight: 700;
+        letter-spacing: 0.02em;
         color: white;
+        background: #ef4444;
         border-radius: 4px;
-        transform: translateY(-1px);
     }
 
-    .nav-icon-btn {
+    /* Desktop Actions */
+    .navbar__actions {
+        display: none;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    @media (min-width: 1024px) {
+        .navbar__actions {
+            display: flex;
+        }
+    }
+
+    /* Icon Button */
+    .icon-btn {
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
         color: var(--text-secondary);
         border-radius: 10px;
-        transition: all 0.2s ease;
+        transition: all 0.2s;
     }
 
-    .nav-icon-btn:hover {
+    .icon-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .icon-btn:hover {
         color: var(--text-primary);
         background: var(--bg-hover);
     }
 
+    /* Tooltip */
+    .icon-btn::before {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 6px 10px;
+        font-size: 11px;
+        font-weight: 500;
+        white-space: nowrap;
+        color: white;
+        background: #1a1a1a;
+        border-radius: 6px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s;
+        pointer-events: none;
+    }
+
+    .icon-btn:hover::before {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Theme icons */
+    .icon-sun {
+        display: none;
+    }
+    .icon-moon {
+        display: block;
+    }
+    :global(.dark) .icon-sun {
+        display: block;
+    }
+    :global(.dark) .icon-moon {
+        display: none;
+    }
+
+    /* Cart badge */
     .cart-badge {
         position: absolute;
         top: 4px;
@@ -285,28 +353,150 @@ const text = t[locale];
         height: 16px;
         padding: 0 4px;
         font-size: 10px;
-        font-weight: 600;
+        font-weight: 700;
         line-height: 16px;
         text-align: center;
-        background: var(--text-primary);
-        color: var(--bg-primary);
+        color: white;
+        background: #ef4444;
         border-radius: 8px;
+        display: none;
     }
 
-    .mobile-nav-link {
+    .cart-badge.visible {
+        display: block;
+    }
+
+    /* Login Button */
+    .btn-login {
+        margin-left: 0.75rem;
+        padding: 0.5rem 1.25rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-inverse);
+        background: var(--text-primary);
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-login:hover {
+        opacity: 0.85;
+    }
+
+    /* Mobile Menu Button */
+    .menu-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        width: 40px;
+        height: 40px;
+        padding: 10px;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    @media (min-width: 1024px) {
+        .menu-btn {
+            display: none;
+        }
+    }
+
+    .menu-line {
+        display: block;
+        width: 20px;
+        height: 1.5px;
+        background: var(--text-primary);
+        border-radius: 1px;
+        transition: all 0.3s ease;
+    }
+
+    .menu-btn.active .menu-line:first-child {
+        transform: rotate(45deg) translate(2px, 2px);
+    }
+
+    .menu-btn.active .menu-line:last-child {
+        transform: rotate(-45deg) translate(2px, -2px);
+    }
+
+    /* Mobile Menu */
+    .mobile-menu {
+        display: none;
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 2rem 1.5rem;
+        background: var(--bg-primary);
+        overflow-y: auto;
+        animation: fadeIn 0.2s ease;
+    }
+
+    @media (min-width: 1024px) {
+        .mobile-menu {
+            display: none !important;
+        }
+    }
+
+    .mobile-menu.open {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .mobile-menu__nav {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-menu__nav a {
         display: flex;
         align-items: center;
-        padding: 12px 16px;
-        color: var(--text-secondary);
-        font-size: 0.9375rem;
+        gap: 0.5rem;
+        padding: 1rem 0;
+        font-size: 1.25rem;
         font-weight: 500;
-        border-radius: 10px;
-        transition: all 0.2s ease;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-color);
     }
 
-    .mobile-nav-link:hover {
-        color: var(--text-primary);
-        background: var(--bg-hover);
+    .mobile-menu__divider {
+        height: 1px;
+        margin: 1.5rem 0;
+        background: var(--border-color);
+    }
+
+    .mobile-menu__actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .mobile-menu__actions a {
+        padding: 0.75rem 0;
+        font-size: 1rem;
+        color: var(--text-secondary);
+    }
+
+    .mobile-menu__login {
+        display: block;
+        width: 100%;
+        margin-top: 2rem;
+        padding: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: center;
+        color: var(--text-inverse);
+        background: var(--text-primary);
+        border-radius: 10px;
     }
 </style>
 
@@ -314,20 +504,41 @@ const text = t[locale];
     import { toggleTheme } from "../lib/theme";
 
     // Theme toggle
-    document.getElementById("theme-toggle")?.addEventListener("click", () => {
-        toggleTheme();
+    document
+        .getElementById("theme-btn")
+        ?.addEventListener("click", toggleTheme);
+
+    // Mobile menu
+    const menuBtn = document.getElementById("menu-btn");
+    const mobileMenu = document.getElementById("mobile-menu");
+
+    menuBtn?.addEventListener("click", () => {
+        menuBtn.classList.toggle("active");
+        mobileMenu?.classList.toggle("open");
+        document.body.style.overflow = mobileMenu?.classList.contains("open")
+            ? "hidden"
+            : "";
     });
 
-    // Mobile menu toggle
-    document
-        .getElementById("mobile-menu-toggle")
-        ?.addEventListener("click", () => {
-            const menu = document.getElementById("mobile-menu");
-            const iconOpen = document.getElementById("menu-icon-open");
-            const iconClose = document.getElementById("menu-icon-close");
-
-            menu?.classList.toggle("hidden");
-            iconOpen?.classList.toggle("hidden");
-            iconClose?.classList.toggle("hidden");
+    // Close on link click
+    mobileMenu?.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+            menuBtn?.classList.remove("active");
+            mobileMenu?.classList.remove("open");
+            document.body.style.overflow = "";
         });
+    });
+
+    // Cart badge
+    function updateCartBadge() {
+        const badge = document.getElementById("cart-badge");
+        // TODO: Connect to cart state
+        const count = 0;
+        if (badge) {
+            badge.textContent = String(count);
+            badge.classList.toggle("visible", count > 0);
+        }
+    }
+
+    updateCartBadge();
 </script>

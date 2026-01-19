@@ -9,37 +9,37 @@
 :root {
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
+
   /* Light Theme */
   --bg-primary: #ffffff;
   --bg-secondary: #f8fafc;
   --bg-tertiary: #f1f5f9;
   --bg-card: #ffffff;
   --bg-hover: #f1f5f9;
-  
+
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-tertiary: #94a3b8;
   --text-inverse: #ffffff;
-  
+
   --border-color: #e2e8f0;
   --border-hover: #cbd5e1;
-  
+
   --accent-primary: #0f172a;
   --accent-secondary: #1e293b;
   --accent-hover: #334155;
-  
+
   --success: #22c55e;
   --warning: #f59e0b;
   --error: #ef4444;
   --sale: #ef4444;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  
+
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
@@ -47,25 +47,26 @@
 }
 
 /* Dark Theme */
-.dark, [data-theme="dark"] {
+.dark,
+[data-theme="dark"] {
   --bg-primary: #0a0a0a;
   --bg-secondary: #111111;
   --bg-tertiary: #1a1a1a;
   --bg-card: #141414;
   --bg-hover: #1f1f1f;
-  
+
   --text-primary: #fafafa;
   --text-secondary: #a1a1aa;
   --text-tertiary: #71717a;
   --text-inverse: #0a0a0a;
-  
+
   --border-color: #27272a;
   --border-hover: #3f3f46;
-  
+
   --accent-primary: #fafafa;
   --accent-secondary: #e4e4e7;
   --accent-hover: #d4d4d8;
-  
+
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
@@ -78,7 +79,7 @@
     font-family: var(--font-sans);
     scroll-behavior: smooth;
   }
-  
+
   body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
@@ -86,11 +87,11 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  
+
   * {
     border-color: var(--border-color);
   }
-  
+
   ::selection {
     background-color: var(--accent-primary);
     color: var(--text-inverse);
@@ -99,35 +100,33 @@
 
 /* ============ COMPONENT CLASSES ============ */
 @layer components {
+
   /* Buttons */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 
-           px-6 py-3 font-medium 
-           rounded-lg transition-all duration-200
-           focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
-  
+
   .btn-primary {
     background-color: var(--accent-primary);
     color: var(--text-inverse);
   }
-  
+
   .btn-primary:hover {
     background-color: var(--accent-hover);
     transform: translateY(-1px);
   }
-  
+
   .btn-secondary {
     background-color: transparent;
     color: var(--text-primary);
     border: 1px solid var(--border-color);
   }
-  
+
   .btn-secondary:hover {
     background-color: var(--bg-hover);
     border-color: var(--border-hover);
   }
-  
+
   /* Cards */
   .card {
     background-color: var(--bg-card);
@@ -135,55 +134,54 @@
     border-radius: 1rem;
     transition: all var(--transition-base);
   }
-  
+
   .card:hover {
     box-shadow: var(--shadow-lg);
     border-color: var(--border-hover);
   }
-  
+
   /* Badge */
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 
-           text-xs font-medium rounded-full;
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full;
   }
-  
+
   .badge-sale {
     background-color: var(--sale);
     color: white;
   }
-  
+
   /* Container */
   .container-custom {
     @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
-  
+
   /* Section */
   .section {
     @apply py-16 md:py-24;
   }
-  
+
   /* Text colors using CSS vars */
   .text-primary {
     color: var(--text-primary);
   }
-  
+
   .text-secondary {
     color: var(--text-secondary);
   }
-  
+
   .text-tertiary {
     color: var(--text-tertiary);
   }
-  
+
   /* Background using CSS vars */
   .bg-primary {
     background-color: var(--bg-primary);
   }
-  
+
   .bg-secondary {
     background-color: var(--bg-secondary);
   }
-  
+
   .bg-card {
     background-color: var(--bg-card);
   }
@@ -191,27 +189,28 @@
 
 /* ============ UTILITY CLASSES ============ */
 @layer utilities {
+
   /* Hide scrollbar */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
+
   /* Glassmorphism */
   .glass {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
-  
+
   .dark .glass {
     background: rgba(0, 0, 0, 0.3);
   }
-  
+
   /* Line clamp */
   .line-clamp-1 {
     overflow: hidden;
@@ -219,7 +218,7 @@
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
   }
-  
+
   .line-clamp-2 {
     overflow: hidden;
     display: -webkit-box;
@@ -230,29 +229,36 @@
 
 /* ============ ANIMATIONS ============ */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(20px); 
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @keyframes slideDown {
-  from { 
-    opacity: 0; 
-    transform: translateY(-10px); 
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -266,4 +272,122 @@
 
 .animate-slide-down {
   animation: slideDown 0.3s ease forwards;
+}
+
+/* ============ CAROUSEL UTILITIES ============ */
+.scroll-snap-x {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-snap-center {
+  scroll-snap-align: center;
+}
+
+.scroll-snap-start {
+  scroll-snap-align: start;
+}
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============ STAGGERED ANIMATIONS ============ */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-slide-up {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+}
+
+/* Stagger delays */
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+.delay-600 {
+  animation-delay: 600ms;
+}
+
+.delay-700 {
+  animation-delay: 700ms;
+}
+
+.delay-800 {
+  animation-delay: 800ms;
+}
+
+/* ============ PREMIUM HOVER EFFECTS ============ */
+.premium-card {
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.premium-card:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.dark .premium-card:hover {
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Glassmorphism overlay */
+.glass-overlay {
+  background: linear-gradient(to top,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.4) 40%,
+      rgba(0, 0, 0, 0) 100%);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Scroll indicator dots */
+.scroll-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.scroll-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background-color: var(--accent-primary);
 }

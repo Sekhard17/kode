@@ -1,10 +1,9 @@
 ---
 /**
- * Featured Products Section
- * Displays featured products from API with currency-aware pricing
+ * Featured Products Section - Minimal Luxury Design
+ * Clean grid layout with subtle animations, inspired by high-end fashion brands
  */
 
-import ProductCard from "./ProductCard.astro";
 import type { ProductListDto } from "../types";
 
 interface Props {
@@ -15,16 +14,16 @@ const { locale = "es" } = Astro.props;
 
 const t = {
     es: {
-        title: "Productos Destacados",
+        title: "Destacados",
         viewAll: "Ver Todo",
-        loading: "Cargando productos...",
-        error: "Error al cargar productos",
+        addToCart: "Añadir",
+        soldOut: "Agotado",
     },
     en: {
-        title: "Featured Products",
+        title: "Featured",
         viewAll: "View All",
-        loading: "Loading products...",
-        error: "Error loading products",
+        addToCart: "Add",
+        soldOut: "Sold Out",
     },
 };
 
@@ -46,49 +45,379 @@ try {
     }
 } catch (e) {
     error = true;
-    console.error("Error fetching products:", e);
 }
 ---
 
-<section class="section bg-primary">
-    <div class="container-custom">
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-10">
-            <h2 class="text-3xl md:text-4xl font-bold">{text.title}</h2>
-            <a href="/tienda" class="btn btn-secondary text-sm">
+<section class="featured" id="featured-products">
+    <div class="featured__container">
+        <!-- Minimal Header -->
+        <header class="featured__header">
+            <h2 class="featured__title">{text.title}</h2>
+            <a href="/tienda" class="featured__link">
                 {text.viewAll}
-                <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                </svg>
+                <span class="featured__link-line"></span>
             </a>
-        </div>
+        </header>
 
-        <!-- Products Grid -->
+        <!-- Products -->
         {
             error ? (
-                <div class="text-center py-16">
-                    <p class="text-tertiary">{text.error}</p>
-                </div>
+                <p class="featured__message">—</p>
             ) : products.length === 0 ? (
-                <div class="text-center py-16">
-                    <p class="text-tertiary">{text.loading}</p>
-                </div>
+                <p class="featured__message">...</p>
             ) : (
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {products.map((product) => (
-                        <ProductCard product={product} locale={locale} />
+                <div class="featured__grid">
+                    {products.map((product, index) => (
+                        <article
+                            class="product"
+                            data-product-id={product.id}
+                            style={`--delay: ${index * 0.1}s`}
+                        >
+                            <a
+                                href={`/producto/${product.slug}`}
+                                class="product__link"
+                            >
+                                <div class="product__image-wrapper">
+                                    {product.primaryImageUrl ? (
+                                        <img
+                                            src={product.primaryImageUrl}
+                                            alt={product.name}
+                                            class="product__image"
+                                            loading="lazy"
+                                        />
+                                    ) : (
+                                        <div class="product__placeholder" />
+                                    )}
+
+                                    {product.hasDiscount && (
+                                        <span class="product__badge">
+                                            -{product.discountPercentage}%
+                                        </span>
+                                    )}
+
+                                    <div class="product__overlay">
+                                        <button
+                                            class="product__add"
+                                            disabled={!product.isAvailable}
+                                        >
+                                            {product.isAvailable
+                                                ? text.addToCart
+                                                : text.soldOut}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="product__info">
+                                    <span class="product__category">
+                                        {product.categoryName}
+                                    </span>
+                                    <h3 class="product__name">
+                                        {product.name}
+                                    </h3>
+                                    <div class="product__prices">
+                                        <span
+                                            class="product__price"
+                                            data-price={product.price}
+                                        />
+                                        {product.compareAtPrice && (
+                                            <span
+                                                class="product__compare"
+                                                data-price={
+                                                    product.compareAtPrice
+                                                }
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            </a>
+                        </article>
                     ))}
                 </div>
             )
         }
     </div>
 </section>
+
+<style>
+    .featured {
+        padding: 6rem 0;
+        background: var(--bg-primary);
+    }
+
+    .featured__container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+
+    /* Header */
+    .featured__header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 3rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .featured__title {
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        font-weight: 500;
+        letter-spacing: -0.02em;
+    }
+
+    .featured__link {
+        position: relative;
+        font-size: 0.875rem;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .featured__link-line {
+        width: 24px;
+        height: 1px;
+        background: currentColor;
+        transition: width 0.3s ease;
+    }
+
+    .featured__link:hover .featured__link-line {
+        width: 40px;
+    }
+
+    .featured__message {
+        text-align: center;
+        padding: 4rem 0;
+        color: var(--text-tertiary);
+    }
+
+    /* Grid */
+    .featured__grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem 1rem;
+    }
+
+    @media (min-width: 640px) {
+        .featured__grid {
+            gap: 2rem 1.5rem;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .featured__grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .featured__grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2.5rem 2rem;
+        }
+    }
+
+    /* Product Card */
+    .product {
+        opacity: 0;
+        animation: fadeIn 0.6s ease forwards;
+        animation-delay: var(--delay);
+    }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+
+    .product__link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .product__image-wrapper {
+        position: relative;
+        aspect-ratio: 3/4;
+        overflow: hidden;
+        background: var(--bg-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .product__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    .product:hover .product__image {
+        transform: scale(1.05);
+    }
+
+    .product__placeholder {
+        width: 100%;
+        height: 100%;
+        background: var(--bg-tertiary);
+    }
+
+    .product__badge {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: var(--text-primary);
+        color: var(--bg-primary);
+    }
+
+    /* Overlay */
+    .product__overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: flex-end;
+        padding: 1rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .product:hover .product__overlay {
+        opacity: 1;
+    }
+
+    .product__add {
+        width: 100%;
+        padding: 0.875rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .product__add:hover:not(:disabled) {
+        background: var(--text-primary);
+        color: var(--bg-primary);
+        border-color: var(--text-primary);
+    }
+
+    .product__add:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Info */
+    .product__info {
+        padding: 0 0.25rem;
+    }
+
+    .product__category {
+        display: block;
+        font-size: 0.6875rem;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-tertiary);
+        margin-bottom: 0.375rem;
+    }
+
+    .product__name {
+        font-size: 0.9375rem;
+        font-weight: 400;
+        line-height: 1.4;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product__prices {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .product__price {
+        font-size: 0.9375rem;
+        font-weight: 500;
+    }
+
+    .product__compare {
+        font-size: 0.8125rem;
+        color: var(--text-tertiary);
+        text-decoration: line-through;
+    }
+
+    /* Mobile touch feedback */
+    @media (hover: none) {
+        .product__overlay {
+            opacity: 1;
+            background: linear-gradient(
+                to top,
+                rgba(0, 0, 0, 0.05) 0%,
+                transparent 50%
+            );
+        }
+
+        .product__add {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+        }
+    }
+</style>
+
+<script>
+    import { formatPrice } from "../lib/currency";
+
+    function updatePrices() {
+        document
+            .querySelectorAll(".product__price[data-price]")
+            .forEach((el) => {
+                const price = parseFloat(
+                    (el as HTMLElement).dataset.price || "0",
+                );
+                el.textContent = formatPrice(price);
+            });
+
+        document
+            .querySelectorAll(".product__compare[data-price]")
+            .forEach((el) => {
+                const price = parseFloat(
+                    (el as HTMLElement).dataset.price || "0",
+                );
+                el.textContent = formatPrice(price);
+            });
+    }
+
+    // Intersection Observer for fade-in
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("visible");
+                }
+            });
+        },
+        { threshold: 0.1, rootMargin: "50px" },
+    );
+
+    document.querySelectorAll(".product").forEach((product) => {
+        observer.observe(product);
+    });
+
+    document.addEventListener("DOMContentLoaded", updatePrices);
+    window.addEventListener("currency-changed", updatePrices);
+</script>

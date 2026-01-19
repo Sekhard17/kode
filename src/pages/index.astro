@@ -23,8 +23,8 @@ const locale = (Astro.cookies.get("kode_locale")?.value as "es" | "en") || "es";
 
 	<main>
 		<HeroSection locale={locale} />
-		<CategoriesSection locale={locale} />
 		<FeaturedProducts locale={locale} />
+		<CategoriesSection locale={locale} />
 
 		<!-- Newsletter CTA -->
 		<section class="section bg-tertiary">

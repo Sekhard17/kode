@@ -1,7 +1,7 @@
 ---
 /**
- * Product Card Component
- * Reusable card for displaying products
+ * Product Card Component - Premium Design
+ * Reusable card for displaying products with enhanced visuals
  */
 
 import type { ProductListDto } from "../types";
@@ -18,11 +18,15 @@ const t = {
         addToCart: "Agregar",
         outOfStock: "Agotado",
         sale: "Oferta",
+        new: "Nuevo",
+        quickView: "Vista rápida",
     },
     en: {
         addToCart: "Add to Cart",
         outOfStock: "Out of Stock",
         sale: "Sale",
+        new: "New",
+        quickView: "Quick View",
     },
 };
 
@@ -33,13 +37,13 @@ const text = t[locale];
     <!-- Image container -->
     <a
         href={`/producto/${product.slug}`}
-        class="block relative aspect-[3/4] overflow-hidden rounded-xl mb-4"
+        class="block relative aspect-[3/4] overflow-hidden rounded-2xl mb-4"
     >
         <!-- Badges -->
         <div class="absolute top-3 left-3 z-10 flex flex-col gap-2">
             {
                 product.hasDiscount && (
-                    <span class="badge badge-sale">
+                    <span class="badge-premium badge-sale">
                         -{product.discountPercentage}%
                     </span>
                 )
@@ -48,12 +52,12 @@ const text = t[locale];
 
         <!-- Wishlist button -->
         <button
-            class="wishlist-btn absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 dark:bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+            class="wishlist-btn absolute top-3 right-3 z-10 w-10 h-10 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg"
             aria-label="Agregar a favoritos"
             data-product-id={product.id}
         >
             <svg
-                class="w-5 h-5"
+                class="w-5 h-5 text-gray-700 dark:text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -73,7 +77,7 @@ const text = t[locale];
                 <img
                     src={product.primaryImageUrl}
                     alt={product.name}
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    class="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-110"
                     loading="lazy"
                 />
             ) : (
@@ -95,40 +99,45 @@ const text = t[locale];
             )
         }
 
-        <!-- Quick add overlay -->
+        <!-- Hover overlay with glassmorphism -->
         <div
-            class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"
         >
-            <button
-                class="quick-add-btn w-full btn bg-white text-black hover:bg-gray-100 py-2 text-sm font-medium"
-                data-product-id={product.id}
-                disabled={!product.isAvailable}
+            <!-- Quick add button container -->
+            <div
+                class="absolute inset-x-0 bottom-0 p-5 translate-y-4 group-hover:translate-y-0 transition-transform duration-500"
             >
-                {product.isAvailable ? text.addToCart : text.outOfStock}
-            </button>
+                <button
+                    class="quick-add-btn w-full py-3 rounded-xl bg-white/95 dark:bg-white text-black font-medium text-sm backdrop-blur-sm hover:bg-white transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    data-product-id={product.id}
+                    disabled={!product.isAvailable}
+                >
+                    {product.isAvailable ? text.addToCart : text.outOfStock}
+                </button>
+            </div>
         </div>
     </a>
 
-    <!-- Info -->
-    <div class="space-y-2">
+    <!-- Product Info -->
+    <div class="space-y-2 px-1">
         <!-- Category -->
-        <p class="text-xs text-tertiary uppercase tracking-wide">
+        <p class="text-xs text-tertiary uppercase tracking-wider font-medium">
             {product.categoryName}
         </p>
 
         <!-- Name -->
-        <a href={`/producto/${product.slug}`}>
+        <a href={`/producto/${product.slug}`} class="block">
             <h3
-                class="font-medium text-primary line-clamp-1 group-hover:text-[var(--accent-primary)] transition-colors"
+                class="font-medium text-primary line-clamp-1 group-hover:text-[var(--accent-secondary)] transition-colors duration-300"
             >
                 {product.name}
             </h3>
         </a>
 
         <!-- Price -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
             <span
-                class="product-price font-semibold"
+                class="product-price text-lg font-semibold"
                 data-price={product.price}
             >
                 <!-- Price will be formatted by JS based on currency -->
@@ -138,7 +147,7 @@ const text = t[locale];
                     <span
                         class="product-compare-price text-sm text-tertiary line-through"
                         data-price={product.compareAtPrice}
-                    ></span>
+                    />
                 )
             }
         </div>
@@ -147,11 +156,54 @@ const text = t[locale];
 
 <style>
     .product-card {
-        transition: transform 0.3s ease;
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .product-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-8px);
+    }
+
+    /* Premium badge style */
+    .badge-premium {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 9999px;
+        letter-spacing: 0.025em;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    .badge-sale {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        box-shadow: 0 4px 14px -3px rgba(239, 68, 68, 0.5);
+    }
+
+    .badge-new {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        box-shadow: 0 4px 14px -3px rgba(59, 130, 246, 0.5);
+    }
+
+    /* Image container shadow */
+    .product-card a:first-of-type {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: box-shadow 0.4s ease;
+    }
+
+    .product-card:hover a:first-of-type {
+        box-shadow:
+            0 20px 40px -15px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(0, 0, 0, 0.02);
+    }
+
+    :global(.dark) .product-card:hover a:first-of-type {
+        box-shadow:
+            0 20px 40px -15px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.05);
     }
 </style>
 
