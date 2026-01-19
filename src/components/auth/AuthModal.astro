@@ -1,0 +1,342 @@
+---
+/**
+ * AuthModal - Main modal container for login/register
+ * Features: glassmorphism, animations, mode switching
+ */
+
+import LoginForm from "./LoginForm.astro";
+import RegisterWizard from "./RegisterWizard.astro";
+
+interface Props {
+    locale?: "es" | "en";
+    initialMode?: "login" | "register";
+}
+
+const { locale = "es", initialMode = "login" } = Astro.props;
+---
+
+<div id="auth-modal" class="auth-modal" data-mode={initialMode}>
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+
+    <div class="modal-container">
+        <div class="modal-content">
+            <!-- Close button -->
+            <button class="modal-close" id="modal-close" aria-label="Cerrar">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <!-- Logo -->
+            <div class="modal-logo">
+                <img src="/LogoModoClaro.png" alt="KØDE" class="logo-light" />
+                <img src="/LogoModoOscuro.png" alt="KØDE" class="logo-dark" />
+            </div>
+
+            <!-- Login Form -->
+            <div class="modal-panel" id="panel-login">
+                <LoginForm locale={locale} />
+            </div>
+
+            <!-- Register Wizard -->
+            <div class="modal-panel" id="panel-register">
+                <RegisterWizard locale={locale} />
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .auth-modal.open {
+        display: flex;
+    }
+
+    .modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-container {
+        position: relative;
+        width: 100%;
+        max-width: 440px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-content {
+        position: relative;
+        padding: 2rem;
+        background: var(--bg-primary);
+        border-radius: 24px;
+        box-shadow:
+            0 25px 50px -12px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+
+    :global(.dark) .modal-content {
+        background: var(--bg-secondary);
+        box-shadow:
+            0 25px 50px -12px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    /* Glassmorphism variation 
+    .modal-content {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+    
+    :global(.dark) .modal-content {
+        background: rgba(17, 17, 17, 0.9);
+    }
+    */
+
+    .modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        background: var(--bg-secondary);
+        border: none;
+        border-radius: 10px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 10;
+    }
+
+    .modal-close:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+    }
+
+    .modal-close svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .modal-logo {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-logo img {
+        height: 32px;
+        width: auto;
+    }
+
+    .logo-light {
+        display: block;
+    }
+    .logo-dark {
+        display: none;
+    }
+    :global(.dark) .logo-light {
+        display: none;
+    }
+    :global(.dark) .logo-dark {
+        display: block;
+    }
+
+    .modal-panel {
+        display: none;
+    }
+
+    .auth-modal[data-mode="login"] #panel-login {
+        display: block;
+        animation: fadeSlide 0.3s ease;
+    }
+
+    .auth-modal[data-mode="register"] #panel-register {
+        display: block;
+        animation: fadeSlide 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes fadeSlide {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Modal closing animation */
+    .auth-modal.closing .modal-backdrop {
+        animation: fadeOut 0.2s ease forwards;
+    }
+
+    .auth-modal.closing .modal-container {
+        animation: scaleOut 0.2s ease forwards;
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+
+    @keyframes scaleOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
+
+    /* Mobile optimization */
+    @media (max-width: 480px) {
+        .auth-modal {
+            padding: 0;
+            align-items: flex-end;
+        }
+
+        .modal-container {
+            max-width: 100%;
+            max-height: 95vh;
+        }
+
+        .modal-content {
+            border-radius: 24px 24px 0 0;
+            padding: 1.5rem;
+            padding-bottom: 2rem;
+        }
+    }
+
+    /* Scrollbar styling */
+    .modal-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .modal-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .modal-container::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 3px;
+    }
+</style>
+
+<script>
+    const modal = document.getElementById("auth-modal");
+    const backdrop = document.getElementById("modal-backdrop");
+    const closeBtn = document.getElementById("modal-close");
+
+    // Open modal
+    function openModal(mode: "login" | "register" = "login") {
+        modal?.setAttribute("data-mode", mode);
+        modal?.classList.add("open");
+        document.body.style.overflow = "hidden";
+    }
+
+    // Close modal with animation
+    function closeModal() {
+        modal?.classList.add("closing");
+        setTimeout(() => {
+            modal?.classList.remove("open", "closing");
+            document.body.style.overflow = "";
+        }, 200);
+    }
+
+    // Switch between login/register
+    function switchMode(mode: "login" | "register") {
+        modal?.setAttribute("data-mode", mode);
+    }
+
+    // Event listeners
+    backdrop?.addEventListener("click", closeModal);
+    closeBtn?.addEventListener("click", closeModal);
+
+    // Escape key to close
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal?.classList.contains("open")) {
+            closeModal();
+        }
+    });
+
+    // Switch mode buttons
+    document.querySelectorAll("[data-switch-to]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const mode = btn.getAttribute("data-switch-to") as
+                | "login"
+                | "register";
+            switchMode(mode);
+        });
+    });
+
+    // Listen for auth events
+    window.addEventListener("auth:open-modal", ((e: CustomEvent) => {
+        openModal(e.detail?.mode || "login");
+    }) as EventListener);
+
+    window.addEventListener("auth:close-modal", () => {
+        closeModal();
+    });
+
+    // Expose functions globally
+    (window as any).authModal = {
+        open: openModal,
+        close: closeModal,
+        switchMode,
+    };
+</script>

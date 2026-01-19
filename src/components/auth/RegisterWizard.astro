@@ -1,0 +1,963 @@
+---
+/**
+ * RegisterWizard - Multi-step registration form
+ * Features: 3 steps, animations, validation per step
+ */
+
+import FormInput from "./FormInput.astro";
+import PasswordInput from "./PasswordInput.astro";
+import StepIndicator from "./StepIndicator.astro";
+
+interface Props {
+    locale?: "es" | "en";
+}
+
+const { locale = "es" } = Astro.props;
+
+const t = {
+    es: {
+        title: "Crear cuenta",
+        subtitle: "Únete a KØDE en 3 simples pasos",
+        steps: ["Credenciales", "Información", "Confirmar"],
+        // Step 1
+        email: "Correo electrónico",
+        emailPlaceholder: "tu@email.com",
+        password: "Contraseña",
+        passwordPlaceholder: "Mínimo 8 caracteres",
+        confirmPassword: "Confirmar contraseña",
+        confirmPasswordPlaceholder: "Repite tu contraseña",
+        // Step 2
+        firstName: "Nombre",
+        firstNamePlaceholder: "Tu nombre",
+        lastName: "Apellido",
+        lastNamePlaceholder: "Tu apellido",
+        // Step 3
+        phone: "Teléfono (opcional)",
+        phonePlaceholder: "+56 9 1234 5678",
+        terms: "Acepto los",
+        termsLink: "términos y condiciones",
+        privacy: "y la",
+        privacyLink: "política de privacidad",
+        // Buttons
+        next: "Continuar",
+        back: "Atrás",
+        submit: "Crear cuenta",
+        submitting: "Creando cuenta...",
+        // Login link
+        hasAccount: "¿Ya tienes cuenta?",
+        login: "Ingresar",
+        // Errors
+        errorEmail: "Ingresa un correo válido",
+        errorPassword: "Mínimo 8 caracteres, una mayúscula y un número",
+        errorConfirmPassword: "Las contraseñas no coinciden",
+        errorFirstName: "El nombre es requerido",
+        errorLastName: "El apellido es requerido",
+        errorTerms: "Debes aceptar los términos",
+        errorEmailExists: "Este correo ya está registrado",
+        errorGeneric: "Error al crear la cuenta. Intenta de nuevo.",
+        success: "¡Cuenta creada exitosamente!",
+    },
+    en: {
+        title: "Create account",
+        subtitle: "Join KØDE in 3 simple steps",
+        steps: ["Credentials", "Information", "Confirm"],
+        email: "Email address",
+        emailPlaceholder: "you@email.com",
+        password: "Password",
+        passwordPlaceholder: "Minimum 8 characters",
+        confirmPassword: "Confirm password",
+        confirmPasswordPlaceholder: "Repeat your password",
+        firstName: "First name",
+        firstNamePlaceholder: "Your name",
+        lastName: "Last name",
+        lastNamePlaceholder: "Your last name",
+        phone: "Phone (optional)",
+        phonePlaceholder: "+56 9 1234 5678",
+        terms: "I accept the",
+        termsLink: "terms and conditions",
+        privacy: "and the",
+        privacyLink: "privacy policy",
+        next: "Continue",
+        back: "Back",
+        submit: "Create account",
+        submitting: "Creating account...",
+        hasAccount: "Already have an account?",
+        login: "Sign in",
+        errorEmail: "Enter a valid email",
+        errorPassword: "Minimum 8 characters, one uppercase and one number",
+        errorConfirmPassword: "Passwords don't match",
+        errorFirstName: "First name is required",
+        errorLastName: "Last name is required",
+        errorTerms: "You must accept the terms",
+        errorEmailExists: "This email is already registered",
+        errorGeneric: "Error creating account. Please try again.",
+        success: "Account created successfully!",
+    },
+};
+
+const text = t[locale];
+---
+
+<div id="register-wizard" class="register-wizard">
+    <div class="wizard-header">
+        <h2 class="wizard-title">{text.title}</h2>
+        <p class="wizard-subtitle">{text.subtitle}</p>
+    </div>
+
+    <StepIndicator currentStep={1} totalSteps={3} labels={text.steps} />
+
+    <div class="wizard-alert" id="register-alert"></div>
+
+    <form id="register-form" class="wizard-form" novalidate>
+        <!-- Step 1: Credentials -->
+        <div class="wizard-step active" data-step="1">
+            <div class="step-fields">
+                <FormInput
+                    type="email"
+                    name="register-email"
+                    label={text.email}
+                    placeholder={text.emailPlaceholder}
+                    icon="email"
+                    required
+                    autocomplete="email"
+                />
+
+                <PasswordInput
+                    name="register-password"
+                    label={text.password}
+                    placeholder={text.passwordPlaceholder}
+                    required
+                    autocomplete="new-password"
+                    showStrength={true}
+                />
+
+                <PasswordInput
+                    name="register-confirm-password"
+                    label={text.confirmPassword}
+                    placeholder={text.confirmPasswordPlaceholder}
+                    required
+                    autocomplete="new-password"
+                />
+            </div>
+        </div>
+
+        <!-- Step 2: Personal Info -->
+        <div class="wizard-step" data-step="2">
+            <div class="step-fields">
+                <FormInput
+                    type="text"
+                    name="register-firstName"
+                    label={text.firstName}
+                    placeholder={text.firstNamePlaceholder}
+                    icon="user"
+                    required
+                    autocomplete="given-name"
+                />
+
+                <FormInput
+                    type="text"
+                    name="register-lastName"
+                    label={text.lastName}
+                    placeholder={text.lastNamePlaceholder}
+                    icon="user"
+                    required
+                    autocomplete="family-name"
+                />
+            </div>
+        </div>
+
+        <!-- Step 3: Confirmation -->
+        <div class="wizard-step" data-step="3">
+            <div class="step-fields">
+                <FormInput
+                    type="tel"
+                    name="register-phone"
+                    label={text.phone}
+                    placeholder={text.phonePlaceholder}
+                    icon="phone"
+                    autocomplete="tel"
+                />
+
+                <label class="terms-label">
+                    <input
+                        type="checkbox"
+                        name="register-terms"
+                        class="terms-checkbox"
+                        required
+                    />
+                    <span class="terms-checkmark"></span>
+                    <span class="terms-text">
+                        {text.terms}
+                        <a href="/terminos" target="_blank">{text.termsLink}</a>
+                        {text.privacy}
+                        <a href="/privacidad" target="_blank"
+                            >{text.privacyLink}</a
+                        >
+                    </span>
+                </label>
+                <span class="error-message" data-error-for="register-terms"
+                ></span>
+            </div>
+
+            <!-- Summary -->
+            <div class="registration-summary">
+                <h4>Resumen</h4>
+                <div class="summary-item">
+                    <span class="summary-label">Email:</span>
+                    <span class="summary-value" id="summary-email"></span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Nombre:</span>
+                    <span class="summary-value" id="summary-name"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="wizard-nav">
+            <button
+                type="button"
+                class="btn-back"
+                id="btn-back"
+                style="display: none;"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15.75 19.5L8.25 12l7.5-7.5"></path>
+                </svg>
+                {text.back}
+            </button>
+
+            <button type="button" class="btn-next" id="btn-next">
+                {text.next}
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 4.5l7.5 7.5-7.5 7.5"></path>
+                </svg>
+            </button>
+
+            <button
+                type="submit"
+                class="btn-submit"
+                id="btn-submit"
+                style="display: none;"
+            >
+                <span class="btn-text">{text.submit}</span>
+                <span class="btn-loading">{text.submitting}</span>
+                <svg class="btn-spinner" viewBox="0 0 24 24" fill="none">
+                    <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-dasharray="31.4 31.4"></circle>
+                </svg>
+            </button>
+        </div>
+    </form>
+
+    <p class="wizard-footer">
+        {text.hasAccount}
+        <button type="button" class="link-login" data-switch-to="login"
+            >{text.login}</button
+        >
+    </p>
+</div>
+
+<style>
+    .register-wizard {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .wizard-header {
+        text-align: center;
+    }
+
+    .wizard-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 0.5rem;
+    }
+
+    .wizard-subtitle {
+        font-size: 0.9375rem;
+        color: var(--text-secondary);
+        margin: 0 0 1rem;
+    }
+
+    .wizard-alert {
+        display: none;
+        padding: 0.875rem 1rem;
+        font-size: 0.875rem;
+        border-radius: 10px;
+        animation: slideDown 0.3s ease;
+    }
+
+    .wizard-alert.error {
+        display: block;
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+    }
+
+    :global(.dark) .wizard-alert.error {
+        color: #fca5a5;
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .wizard-alert.success {
+        display: block;
+        color: #166534;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+    }
+
+    :global(.dark) .wizard-alert.success {
+        color: #86efac;
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.2);
+    }
+
+    .wizard-form {
+        position: relative;
+        min-height: 280px;
+    }
+
+    .wizard-step {
+        display: none;
+        animation: fadeSlideIn 0.4s ease;
+    }
+
+    .wizard-step.active {
+        display: block;
+    }
+
+    .wizard-step.slide-left {
+        animation: slideLeft 0.4s ease;
+    }
+
+    .wizard-step.slide-right {
+        animation: slideRight 0.4s ease;
+    }
+
+    @keyframes fadeSlideIn {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .step-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* Terms checkbox */
+    .terms-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        line-height: 1.4;
+    }
+
+    .terms-checkbox {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .terms-checkmark {
+        position: relative;
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        margin-top: 1px;
+        background: var(--bg-secondary);
+        border: 1.5px solid var(--border-color);
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+
+    .terms-checkbox:checked + .terms-checkmark {
+        background: var(--accent-primary);
+        border-color: var(--accent-primary);
+    }
+
+    .terms-checkbox:checked + .terms-checkmark::after {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 3px;
+        width: 5px;
+        height: 9px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .terms-checkbox:focus + .terms-checkmark {
+        box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+    }
+
+    .terms-text a {
+        color: var(--accent-primary);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .terms-text a:hover {
+        text-decoration: underline;
+    }
+
+    .error-message {
+        font-size: 0.8125rem;
+        color: var(--error);
+        min-height: 1.25rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .error-message.visible {
+        opacity: 1;
+    }
+
+    /* Summary */
+    .registration-summary {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+
+    .registration-summary h4 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 0.75rem;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.375rem 0;
+        font-size: 0.875rem;
+    }
+
+    .summary-label {
+        color: var(--text-tertiary);
+    }
+
+    .summary-value {
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    /* Navigation */
+    .wizard-nav {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-back {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.25rem;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+        background: var(--bg-hover);
+        border-color: var(--border-hover);
+    }
+
+    .btn-back svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .btn-next,
+    .btn-submit {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.9375rem 1.5rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text-inverse);
+        background: var(--accent-primary);
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-next:hover:not(:disabled),
+    .btn-submit:hover:not(:disabled) {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .btn-next:disabled,
+    .btn-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .btn-next svg,
+    .btn-submit svg:not(.btn-spinner) {
+        width: 16px;
+        height: 16px;
+    }
+
+    .btn-loading,
+    .btn-spinner {
+        display: none;
+    }
+
+    .btn-submit.loading .btn-text {
+        display: none;
+    }
+
+    .btn-submit.loading .btn-loading,
+    .btn-submit.loading .btn-spinner {
+        display: inline;
+    }
+
+    .btn-spinner {
+        width: 18px;
+        height: 18px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .wizard-footer {
+        text-align: center;
+        font-size: 0.9375rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
+    .link-login {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: inherit;
+        font-weight: 600;
+        color: var(--accent-primary);
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .link-login:hover {
+        opacity: 0.8;
+    }
+</style>
+
+<script>
+    import { authService } from "../../services/auth.service";
+    import { getErrorMessage } from "../../services/api";
+
+    let currentStep = 1;
+    const totalSteps = 3;
+
+    // Friendly error messages mapping
+    const friendlyErrors: Record<string, string> = {
+        "Email ya registrado":
+            "Este correo ya tiene una cuenta. ¿Quieres iniciar sesión?",
+        "Email already exists":
+            "Este correo ya tiene una cuenta. ¿Quieres iniciar sesión?",
+        "The Email field is not a valid e-mail address.":
+            "Ingresa un correo válido.",
+        "Network Error":
+            "Sin conexión. Verifica tu internet e intenta de nuevo.",
+    };
+
+    function getFriendlyError(error: unknown): string {
+        const rawMessage = getErrorMessage(error);
+        return (
+            friendlyErrors[rawMessage] ||
+            rawMessage ||
+            "Error al crear la cuenta. Intenta de nuevo."
+        );
+    }
+
+    // Elements
+    const wizard = document.getElementById("register-wizard");
+    const form = document.getElementById("register-form") as HTMLFormElement;
+    const alertBox = document.getElementById(
+        "register-alert",
+    ) as HTMLDivElement;
+    const btnBack = document.getElementById("btn-back") as HTMLButtonElement;
+    const btnNext = document.getElementById("btn-next") as HTMLButtonElement;
+    const btnSubmit = document.getElementById(
+        "btn-submit",
+    ) as HTMLButtonElement;
+    const stepIndicator = wizard?.querySelector(".step-indicator");
+
+    // Inputs
+    const emailInput = document.getElementById(
+        "register-email",
+    ) as HTMLInputElement;
+    const passwordInput = document.getElementById(
+        "register-password",
+    ) as HTMLInputElement;
+    const confirmPasswordInput = document.getElementById(
+        "register-confirm-password",
+    ) as HTMLInputElement;
+    const firstNameInput = document.getElementById(
+        "register-firstName",
+    ) as HTMLInputElement;
+    const lastNameInput = document.getElementById(
+        "register-lastName",
+    ) as HTMLInputElement;
+    const phoneInput = document.getElementById(
+        "register-phone",
+    ) as HTMLInputElement;
+    const termsCheckbox = document.querySelector(
+        '[name="register-terms"]',
+    ) as HTMLInputElement;
+
+    // Summary elements
+    const summaryEmail = document.getElementById("summary-email");
+    const summaryName = document.getElementById("summary-name");
+
+    // Validation helpers
+    function isValidEmail(email: string): boolean {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function isValidPassword(password: string): boolean {
+        return (
+            password.length >= 8 &&
+            /[A-Z]/.test(password) &&
+            /\d/.test(password)
+        );
+    }
+
+    function showError(input: HTMLInputElement | null, message: string) {
+        if (!input) return;
+        input.classList.add("error");
+        const errorEl = document.querySelector(
+            `[data-error-for="${input.name}"]`,
+        );
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.classList.add("visible");
+        }
+    }
+
+    function clearError(input: HTMLInputElement | null) {
+        if (!input) return;
+        input.classList.remove("error");
+        const errorEl = document.querySelector(
+            `[data-error-for="${input.name}"]`,
+        );
+        if (errorEl) {
+            errorEl.textContent = "";
+            errorEl.classList.remove("visible");
+        }
+    }
+
+    function showAlert(message: string, type: "error" | "success") {
+        alertBox.textContent = message;
+        alertBox.className = `wizard-alert ${type}`;
+    }
+
+    function hideAlert() {
+        alertBox.className = "wizard-alert";
+        alertBox.textContent = "";
+    }
+
+    // Step validation
+    function validateStep(step: number): boolean {
+        hideAlert();
+
+        switch (step) {
+            case 1:
+                let valid = true;
+
+                if (!emailInput.value || !isValidEmail(emailInput.value)) {
+                    showError(emailInput, "Ingresa un correo válido");
+                    valid = false;
+                } else {
+                    clearError(emailInput);
+                }
+
+                if (
+                    !passwordInput.value ||
+                    !isValidPassword(passwordInput.value)
+                ) {
+                    showError(
+                        passwordInput,
+                        "Mínimo 8 caracteres, una mayúscula y un número",
+                    );
+                    valid = false;
+                } else {
+                    clearError(passwordInput);
+                }
+
+                if (passwordInput.value !== confirmPasswordInput.value) {
+                    showError(
+                        confirmPasswordInput,
+                        "Las contraseñas no coinciden",
+                    );
+                    valid = false;
+                } else {
+                    clearError(confirmPasswordInput);
+                }
+
+                return valid;
+
+            case 2:
+                let valid2 = true;
+
+                if (
+                    !firstNameInput.value.trim() ||
+                    firstNameInput.value.trim().length < 2
+                ) {
+                    showError(
+                        firstNameInput,
+                        "El nombre es requerido (mínimo 2 caracteres)",
+                    );
+                    valid2 = false;
+                } else {
+                    clearError(firstNameInput);
+                }
+
+                if (
+                    !lastNameInput.value.trim() ||
+                    lastNameInput.value.trim().length < 2
+                ) {
+                    showError(
+                        lastNameInput,
+                        "El apellido es requerido (mínimo 2 caracteres)",
+                    );
+                    valid2 = false;
+                } else {
+                    clearError(lastNameInput);
+                }
+
+                return valid2;
+
+            case 3:
+                if (!termsCheckbox.checked) {
+                    showError(termsCheckbox, "Debes aceptar los términos");
+                    return false;
+                }
+                clearError(termsCheckbox);
+                return true;
+
+            default:
+                return true;
+        }
+    }
+
+    // Navigate between steps
+    function goToStep(
+        step: number,
+        direction: "forward" | "backward" = "forward",
+    ) {
+        const prevStepEl = wizard?.querySelector(
+            `.wizard-step[data-step="${currentStep}"]`,
+        );
+        const nextStepEl = wizard?.querySelector(
+            `.wizard-step[data-step="${step}"]`,
+        );
+
+        if (prevStepEl && nextStepEl) {
+            prevStepEl.classList.remove("active");
+            nextStepEl.classList.remove("slide-left", "slide-right");
+            nextStepEl.classList.add(
+                "active",
+                direction === "forward" ? "slide-right" : "slide-left",
+            );
+        }
+
+        currentStep = step;
+
+        // Update step indicator
+        if (stepIndicator) {
+            stepIndicator.setAttribute("data-current-step", String(step));
+
+            stepIndicator.querySelectorAll(".step").forEach((s, i) => {
+                const stepNum = i + 1;
+                s.classList.toggle("current", stepNum === step);
+                s.classList.toggle("completed", stepNum < step);
+            });
+
+            stepIndicator
+                .querySelectorAll(".step-connector")
+                .forEach((c, i) => {
+                    c.classList.toggle("completed", i + 1 < step);
+                });
+        }
+
+        // Update buttons
+        btnBack.style.display = step > 1 ? "flex" : "none";
+        btnNext.style.display = step < totalSteps ? "flex" : "none";
+        btnSubmit.style.display = step === totalSteps ? "flex" : "none";
+
+        // Update summary on step 3
+        if (step === 3) {
+            if (summaryEmail) summaryEmail.textContent = emailInput.value;
+            if (summaryName)
+                summaryName.textContent = `${firstNameInput.value} ${lastNameInput.value}`;
+        }
+    }
+
+    // Event listeners
+    btnNext?.addEventListener("click", () => {
+        if (validateStep(currentStep)) {
+            goToStep(currentStep + 1, "forward");
+        }
+    });
+
+    btnBack?.addEventListener("click", () => {
+        goToStep(currentStep - 1, "backward");
+    });
+
+    // Clear errors on input
+    [
+        emailInput,
+        passwordInput,
+        confirmPasswordInput,
+        firstNameInput,
+        lastNameInput,
+        phoneInput,
+    ].forEach((input) => {
+        input?.addEventListener("input", () => {
+            clearError(input);
+            hideAlert();
+        });
+    });
+
+    termsCheckbox?.addEventListener("change", () => {
+        clearError(termsCheckbox);
+        hideAlert();
+    });
+
+    // Form submission
+    form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (!validateStep(3)) return;
+
+        btnSubmit.disabled = true;
+        btnSubmit.classList.add("loading");
+
+        try {
+            const user = await authService.register({
+                email: emailInput.value,
+                password: passwordInput.value,
+                firstName: firstNameInput.value.trim(),
+                lastName: lastNameInput.value.trim(),
+                phone: phoneInput.value.trim() || undefined,
+            });
+
+            showAlert(
+                "¡Cuenta creada exitosamente! Bienvenido a KØDE.",
+                "success",
+            );
+
+            // Dispatch success event
+            window.dispatchEvent(
+                new CustomEvent("auth:register-success", { detail: user }),
+            );
+
+            // Close modal after delay
+            setTimeout(() => {
+                window.dispatchEvent(new CustomEvent("auth:close-modal"));
+                window.location.reload();
+            }, 1500);
+        } catch (error: unknown) {
+            const message = getFriendlyError(error);
+            showAlert(message, "error");
+        } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.classList.remove("loading");
+        }
+    });
+</script>

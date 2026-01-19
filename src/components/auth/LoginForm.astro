@@ -1,0 +1,502 @@
+---
+/**
+ * LoginForm - Elegant login form with validation
+ * Features: real-time validation, loading states, error handling
+ */
+
+import FormInput from "./FormInput.astro";
+import PasswordInput from "./PasswordInput.astro";
+
+interface Props {
+    locale?: "es" | "en";
+}
+
+const { locale = "es" } = Astro.props;
+
+const t = {
+    es: {
+        title: "Bienvenido de vuelta",
+        subtitle: "Ingresa a tu cuenta para continuar",
+        email: "Correo electrónico",
+        emailPlaceholder: "tu@email.com",
+        password: "Contraseña",
+        passwordPlaceholder: "Tu contraseña",
+        rememberMe: "Recordarme",
+        forgotPassword: "¿Olvidaste tu contraseña?",
+        login: "Ingresar",
+        loggingIn: "Ingresando...",
+        noAccount: "¿No tienes cuenta?",
+        createAccount: "Crear cuenta",
+        errorInvalidCredentials: "Credenciales incorrectas. Intenta de nuevo.",
+        errorNetwork: "Error de conexión. Intenta más tarde.",
+        errorEmail: "Ingresa un correo válido",
+        errorPassword: "La contraseña es requerida",
+    },
+    en: {
+        title: "Welcome back",
+        subtitle: "Sign in to your account to continue",
+        email: "Email address",
+        emailPlaceholder: "you@email.com",
+        password: "Password",
+        passwordPlaceholder: "Your password",
+        rememberMe: "Remember me",
+        forgotPassword: "Forgot password?",
+        login: "Sign in",
+        loggingIn: "Signing in...",
+        noAccount: "Don't have an account?",
+        createAccount: "Create account",
+        errorInvalidCredentials: "Invalid credentials. Please try again.",
+        errorNetwork: "Connection error. Please try later.",
+        errorEmail: "Enter a valid email",
+        errorPassword: "Password is required",
+    },
+};
+
+const text = t[locale];
+---
+
+<form id="login-form" class="login-form" novalidate>
+    <div class="form-header">
+        <h2 class="form-title">{text.title}</h2>
+        <p class="form-subtitle">{text.subtitle}</p>
+    </div>
+
+    <div class="form-alert" id="login-alert"></div>
+
+    <div class="form-fields">
+        <FormInput
+            type="email"
+            name="login-email"
+            label={text.email}
+            placeholder={text.emailPlaceholder}
+            icon="email"
+            required
+            autocomplete="email"
+        />
+
+        <PasswordInput
+            name="login-password"
+            label={text.password}
+            placeholder={text.passwordPlaceholder}
+            required
+            autocomplete="current-password"
+        />
+    </div>
+
+    <div class="form-options">
+        <label class="checkbox-label">
+            <input type="checkbox" name="remember" class="checkbox" />
+            <span class="checkmark"></span>
+            <span>{text.rememberMe}</span>
+        </label>
+        <a href="#" class="forgot-link">{text.forgotPassword}</a>
+    </div>
+
+    <button type="submit" class="btn-submit" id="login-submit">
+        <span class="btn-text">{text.login}</span>
+        <span class="btn-loading">{text.loggingIn}</span>
+        <svg class="btn-spinner" viewBox="0 0 24 24" fill="none">
+            <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-dasharray="31.4 31.4"></circle>
+        </svg>
+    </button>
+
+    <p class="form-footer">
+        {text.noAccount}
+        <button type="button" class="link-register" data-switch-to="register"
+            >{text.createAccount}</button
+        >
+    </p>
+</form>
+
+<style>
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 0.5rem;
+    }
+
+    .form-subtitle {
+        font-size: 0.9375rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
+    .form-alert {
+        display: none;
+        padding: 0.875rem 1rem;
+        font-size: 0.875rem;
+        border-radius: 10px;
+        animation: slideDown 0.3s ease;
+    }
+
+    .form-alert.error {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+    }
+
+    :global(.dark) .form-alert.error {
+        color: #fca5a5;
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .form-alert.success {
+        display: flex;
+        color: #166534;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+    }
+
+    :global(.dark) .form-alert.success {
+        color: #86efac;
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.2);
+    }
+
+    .form-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .form-options {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    /* Custom checkbox */
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .checkbox {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .checkmark {
+        position: relative;
+        width: 18px;
+        height: 18px;
+        background: var(--bg-secondary);
+        border: 1.5px solid var(--border-color);
+        border-radius: 5px;
+        transition: all 0.2s;
+    }
+
+    .checkbox:checked + .checkmark {
+        background: var(--accent-primary);
+        border-color: var(--accent-primary);
+    }
+
+    .checkbox:checked + .checkmark::after {
+        content: "";
+        position: absolute;
+        left: 5px;
+        top: 2px;
+        width: 5px;
+        height: 9px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .checkbox:focus + .checkmark {
+        box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+    }
+
+    :global(.dark) .checkbox:focus + .checkmark {
+        box-shadow: 0 0 0 3px rgba(250, 250, 250, 0.08);
+    }
+
+    .forgot-link {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .forgot-link:hover {
+        color: var(--text-primary);
+    }
+
+    /* Submit button */
+    .btn-submit {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.9375rem 1.5rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text-inverse);
+        background: var(--accent-primary);
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        overflow: hidden;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .btn-submit:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .btn-loading,
+    .btn-spinner {
+        display: none;
+    }
+
+    .btn-submit.loading .btn-text {
+        display: none;
+    }
+
+    .btn-submit.loading .btn-loading,
+    .btn-submit.loading .btn-spinner {
+        display: inline;
+    }
+
+    .btn-spinner {
+        width: 18px;
+        height: 18px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-footer {
+        text-align: center;
+        font-size: 0.9375rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
+    .link-register {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: inherit;
+        font-weight: 600;
+        color: var(--accent-primary);
+        cursor: pointer;
+        text-decoration: none;
+        transition: opacity 0.2s;
+    }
+
+    .link-register:hover {
+        opacity: 0.8;
+    }
+</style>
+
+<script>
+    import { authService } from "../../services/auth.service";
+    import { getErrorMessage } from "../../services/api";
+
+    const form = document.getElementById("login-form") as HTMLFormElement;
+    const submitBtn = document.getElementById(
+        "login-submit",
+    ) as HTMLButtonElement;
+    const alertBox = document.getElementById("login-alert") as HTMLDivElement;
+
+    const emailInput = document.getElementById(
+        "login-email",
+    ) as HTMLInputElement;
+    const passwordInput = document.getElementById(
+        "login-password",
+    ) as HTMLInputElement;
+
+    // Friendly error messages mapping
+    const friendlyErrors: Record<string, string> = {
+        "Credenciales inválidas":
+            "El correo o la contraseña son incorrectos. Verifica tus datos.",
+        "Invalid credentials":
+            "El correo o la contraseña son incorrectos. Verifica tus datos.",
+        "User not found": "No encontramos una cuenta con ese correo.",
+        "Network Error":
+            "Sin conexión. Verifica tu internet e intenta de nuevo.",
+    };
+
+    function getFriendlyError(error: unknown): string {
+        const rawMessage = getErrorMessage(error);
+        return (
+            friendlyErrors[rawMessage] ||
+            rawMessage ||
+            "Ocurrió un error. Intenta de nuevo."
+        );
+    }
+
+    // Validation helpers
+    function isValidEmail(email: string): boolean {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function showError(input: HTMLInputElement, message: string) {
+        input.classList.add("error");
+        const errorEl = document.querySelector(
+            `[data-error-for="${input.name}"]`,
+        );
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.classList.add("visible");
+        }
+    }
+
+    function clearError(input: HTMLInputElement) {
+        input.classList.remove("error");
+        const errorEl = document.querySelector(
+            `[data-error-for="${input.name}"]`,
+        );
+        if (errorEl) {
+            errorEl.textContent = "";
+            errorEl.classList.remove("visible");
+        }
+    }
+
+    function showAlert(message: string, type: "error" | "success") {
+        alertBox.textContent = message;
+        alertBox.className = `form-alert ${type}`;
+    }
+
+    function hideAlert() {
+        alertBox.className = "form-alert";
+        alertBox.textContent = "";
+    }
+
+    // Real-time validation
+    emailInput?.addEventListener("blur", () => {
+        if (emailInput.value && !isValidEmail(emailInput.value)) {
+            showError(emailInput, "Ingresa un correo válido");
+        } else {
+            clearError(emailInput);
+        }
+    });
+
+    emailInput?.addEventListener("input", () => {
+        if (emailInput.classList.contains("error")) {
+            clearError(emailInput);
+        }
+        hideAlert();
+    });
+
+    passwordInput?.addEventListener("input", () => {
+        if (passwordInput.classList.contains("error")) {
+            clearError(passwordInput);
+        }
+        hideAlert();
+    });
+
+    // Form submission
+    form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        hideAlert();
+
+        // Validate
+        let hasErrors = false;
+
+        if (!emailInput.value || !isValidEmail(emailInput.value)) {
+            showError(emailInput, "Ingresa un correo válido");
+            hasErrors = true;
+        }
+
+        if (!passwordInput.value) {
+            showError(passwordInput, "La contraseña es requerida");
+            hasErrors = true;
+        }
+
+        if (hasErrors) return;
+
+        // Submit
+        submitBtn.disabled = true;
+        submitBtn.classList.add("loading");
+
+        try {
+            const user = await authService.login({
+                email: emailInput.value,
+                password: passwordInput.value,
+            });
+
+            showAlert("¡Bienvenido de vuelta!", "success");
+
+            // Dispatch success event
+            window.dispatchEvent(
+                new CustomEvent("auth:login-success", { detail: user }),
+            );
+
+            // Close modal after short delay
+            setTimeout(() => {
+                window.dispatchEvent(new CustomEvent("auth:close-modal"));
+                window.location.reload();
+            }, 1000);
+        } catch (error: unknown) {
+            const message = getFriendlyError(error);
+            showAlert(message, "error");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("loading");
+        }
+    });
+</script>

@@ -1,0 +1,196 @@
+---
+/**
+ * StepIndicator - Visual step progress for multi-step forms
+ * Features: animated transitions, labels, completion states
+ */
+
+interface Props {
+    currentStep: number;
+    totalSteps: number;
+    labels?: string[];
+}
+
+const { currentStep, totalSteps, labels = [] } = Astro.props;
+
+const steps = Array.from({ length: totalSteps }, (_, i) => ({
+    number: i + 1,
+    label: labels[i] || `Paso ${i + 1}`,
+    isCompleted: i + 1 < currentStep,
+    isCurrent: i + 1 === currentStep,
+}));
+---
+
+<div class="step-indicator" data-current-step={currentStep}>
+    {
+        steps.map((step, index) => (
+            <>
+                <div
+                    class:list={[
+                        "step",
+                        { completed: step.isCompleted },
+                        { current: step.isCurrent },
+                    ]}
+                    data-step={step.number}
+                >
+                    <div class="step-circle">
+                        {step.isCompleted ? (
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M4.5 12.75l6 6 9-13.5"
+                                />
+                            </svg>
+                        ) : (
+                            <span>{step.number}</span>
+                        )}
+                    </div>
+                    <span class="step-label">{step.label}</span>
+                </div>
+                {index < steps.length - 1 && (
+                    <div
+                        class:list={[
+                            "step-connector",
+                            { completed: step.isCompleted },
+                        ]}
+                    >
+                        <div class="connector-fill" />
+                    </div>
+                )}
+            </>
+        ))
+    }
+</div>
+
+<style>
+    .step-indicator {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 0;
+        padding: 0 1rem;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 80px;
+    }
+
+    .step-circle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        background: var(--bg-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: 50%;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .step-circle svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .step-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--text-tertiary);
+        text-align: center;
+        transition: color 0.3s;
+    }
+
+    /* Current step */
+    .step.current .step-circle {
+        color: var(--text-inverse);
+        background: var(--accent-primary);
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.1);
+    }
+
+    :global(.dark) .step.current .step-circle {
+        box-shadow: 0 0 0 4px rgba(250, 250, 250, 0.1);
+    }
+
+    .step.current .step-label {
+        color: var(--text-primary);
+    }
+
+    /* Completed step */
+    .step.completed .step-circle {
+        color: white;
+        background: var(--success);
+        border-color: var(--success);
+    }
+
+    .step.completed .step-label {
+        color: var(--text-secondary);
+    }
+
+    /* Connector */
+    .step-connector {
+        flex: 1;
+        height: 2px;
+        min-width: 40px;
+        max-width: 80px;
+        margin-top: 19px; /* Center with circle */
+        background: var(--border-color);
+        border-radius: 1px;
+        overflow: hidden;
+    }
+
+    .connector-fill {
+        width: 0%;
+        height: 100%;
+        background: var(--success);
+        border-radius: 1px;
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .step-connector.completed .connector-fill {
+        width: 100%;
+    }
+
+    /* Mobile optimization */
+    @media (max-width: 480px) {
+        .step-indicator {
+            padding: 0;
+        }
+
+        .step {
+            min-width: 60px;
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            font-size: 0.75rem;
+        }
+
+        .step-circle svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .step-label {
+            font-size: 0.6875rem;
+        }
+
+        .step-connector {
+            min-width: 24px;
+            margin-top: 15px;
+        }
+    }
+</style>
