@@ -3,606 +3,91 @@
  * =================================================================
  * CARRITO DE COMPRAS - KØDE Streetwear
  * =================================================================
- * 
+ *
  * ARQUITECTURA CLEAN:
- * - Los tipos vienen de /types (CartItemDto, Size)
+ * - Los tipos vienen de /types
  * - La lógica del carrito está en /lib/cart-store.ts
- * - Los servicios de API están en /services/cart.service.ts
- * - Este archivo solo maneja la presentación (vista)
- * 
- * SEPARACIÓN DE RESPONSABILIDADES:
- * 1. /types → Definición de interfaces y tipos
- * 2. /lib → Utilidades y estado local
- * 3. /services → Llamadas a la API
- * 4. /pages → Presentación y UI
+ * - Las traducciones están en /lib/translations/cart.ts
+ * - Los componentes de UI están en /components/carrito-compras/
+ * - Este archivo solo maneja las importaciones y configuración
  */
 
 // ============ IMPORTS ============
 
-// Layout y componentes reutilizables
+// Layout y componentes globales
 import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 
-// Tipos del proyecto (sin 'any')
-import type { CartItemDto } from "../types";
-import { SizeLabels, type Size } from "../types";
+// Componentes del carrito
+import CartItemList from "../components/carrito-compras/CartItemList.astro";
+import OrderSummary from "../components/carrito-compras/OrderSummary.astro";
+import ContinueShopping from "../components/carrito-compras/ContinueShopping.astro";
+import CartClientScript from "../components/carrito-compras/CartClientScript.astro";
 
-// Utilidades del carrito
-import { 
-    createDemoCart, 
-    hasFreeShipping, 
-    getFreeShippingThreshold,
-    getFreeShippingProgress 
+// Utilidades y traducciones
+import { getCartTranslations } from "../lib/translations/cart";
+import {
+    createDemoCart,
+    hasFreeShipping,
+    getFreeShippingProgress,
 } from "../lib/cart-store";
 
 // ============ CONFIGURACIÓN ============
 
 // Obtener idioma de la cookie
 const locale = (Astro.cookies.get("kode_locale")?.value as "es" | "en") || "es";
+const text = getCartTranslations(locale);
 
-// Traducciones tipadas
-interface CartTranslations {
-    title: string;
-    emptyTitle: string;
-    emptySubtitle: string;
-    continueShopping: string;
-    product: string;
-    price: string;
-    quantity: string;
-    total: string;
-    remove: string;
-    subtotal: string;
-    shipping: string;
-    shippingFree: string;
-    shippingCalculated: string;
-    orderTotal: string;
-    checkout: string;
-    secureCheckout: string;
-    freeShippingNote: string;
-    size: string;
-    orderSummary: string;
-}
-
-const translations: Record<"es" | "en", CartTranslations> = {
-    es: {
-        title: "Carrito de Compras",
-        emptyTitle: "Tu carrito está vacío",
-        emptySubtitle: "Parece que aún no has agregado nada. ¡Descubre nuestra colección!",
-        continueShopping: "Explorar Tienda",
-        product: "Producto",
-        price: "Precio",
-        quantity: "Cantidad",
-        total: "Total",
-        remove: "Eliminar",
-        subtotal: "Subtotal",
-        shipping: "Envío",
-        shippingFree: "Gratis",
-        shippingCalculated: "Calculado al pagar",
-        orderTotal: "Total del Pedido",
-        checkout: "Proceder al Pago",
-        secureCheckout: "Pago 100% seguro",
-        freeShippingNote: "¡Envío gratis en compras sobre $50.000!",
-        size: "Talla",
-        orderSummary: "Resumen del Pedido",
-    },
-    en: {
-        title: "Shopping Cart",
-        emptyTitle: "Your cart is empty",
-        emptySubtitle: "Looks like you haven't added anything yet. Discover our collection!",
-        continueShopping: "Explore Shop",
-        product: "Product",
-        price: "Price",
-        quantity: "Quantity",
-        total: "Total",
-        remove: "Remove",
-        subtotal: "Subtotal",
-        shipping: "Shipping",
-        shippingFree: "Free",
-        shippingCalculated: "Calculated at checkout",
-        orderTotal: "Order Total",
-        checkout: "Proceed to Checkout",
-        secureCheckout: "100% Secure Checkout",
-        freeShippingNote: "Free shipping on orders over $50!",
-        size: "Size",
-        orderSummary: "Order Summary",
-    },
-};
-
-const text = translations[locale];
-
-// ============ DATOS DEL CARRITO ============
-
-// Obtener carrito de demostración (en producción vendría del servicio)
+// Obtener datos del carrito
 const cart = createDemoCart();
 const { items, subtotal } = cart;
 
 // Calcular información de envío
 const isFreeShipping = hasFreeShipping(subtotal);
-const freeShippingThreshold = getFreeShippingThreshold();
 const shippingProgress = getFreeShippingProgress(subtotal);
-
-/**
- * Obtiene el label de la talla a partir del enum Size
- */
-function getSizeLabel(size: Size): string {
-    return SizeLabels[size] || 'N/A';
-}
 ---
 
-<Layout 
+<Layout
     title={`${text.title} | KØDE`}
     description="Tu carrito de compras en KØDE - Streetwear Premium"
 >
     <Navbar locale={locale} />
-    
+
     <main class="pt-[104px] min-h-screen bg-primary">
         <div class="container-custom py-8 md:py-12">
-            
             <!-- Título -->
             <h1 class="text-3xl md:text-4xl font-bold mb-8 animate-fade-in">
                 {text.title}
             </h1>
-            
+
             <!-- Grid principal -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
                 <!-- Lista de productos -->
-                <div class="lg:col-span-2 space-y-4" id="cart-items-container">
-                    
-                    {items.map((item: CartItemDto, index: number) => (
-                        <article 
-                            class="cart-item card p-4 flex flex-col sm:flex-row gap-4 animate-slide-up"
-                            style={`animation-delay: ${index * 100}ms`}
-                            data-item-id={item.id}
-                            data-unit-price={item.unitPrice}
-                        >
-                            <!-- Imagen -->
-                            <a 
-                                href={`/producto/${item.productSlug}`}
-                                class="flex-shrink-0 w-full sm:w-28 h-36 rounded-lg overflow-hidden group"
-                            >
-                                {item.productImageUrl ? (
-                                    <img 
-                                        src={item.productImageUrl} 
-                                        alt={item.productName}
-                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                        loading="lazy"
-                                    />
-                                ) : (
-                                    <div class="w-full h-full bg-[var(--bg-tertiary)] flex items-center justify-center">
-                                        <svg class="w-12 h-12 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                )}
-                            </a>
-                            
-                            <!-- Información -->
-                            <div class="flex-1 flex flex-col justify-between">
-                                <div>
-                                    <a 
-                                        href={`/producto/${item.productSlug}`}
-                                        class="font-semibold text-lg hover:text-[var(--accent-primary)] transition-colors line-clamp-1"
-                                    >
-                                        {item.productName}
-                                    </a>
-                                    
-                                    <div class="flex items-center gap-3 mt-1 text-sm text-secondary">
-                                        <span class="px-2 py-0.5 bg-[var(--bg-tertiary)] rounded">
-                                            {text.size}: {getSizeLabel(item.size)}
-                                        </span>
-                                        <span class="unit-price" data-price={item.unitPrice}></span>
-                                    </div>
-                                </div>
-                                
-                                <!-- Controles -->
-                                <div class="flex items-center justify-between mt-4">
-                                    <div class="quantity-controls flex items-center gap-2">
-                                        <button 
-                                            class="quantity-btn decrease w-8 h-8 rounded-lg border border-[var(--border-color)] flex items-center justify-center hover:bg-[var(--bg-hover)] transition-all hover:scale-105"
-                                            data-item-id={item.id}
-                                            data-action="decrease"
-                                            type="button"
-                                            aria-label="Disminuir cantidad"
-                                        >
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                                            </svg>
-                                        </button>
-                                        
-                                        <span 
-                                            class="quantity-display w-10 text-center font-medium transition-transform"
-                                            data-item-id={item.id}
-                                        >
-                                            {item.quantity}
-                                        </span>
-                                        
-                                        <button 
-                                            class="quantity-btn increase w-8 h-8 rounded-lg border border-[var(--border-color)] flex items-center justify-center hover:bg-[var(--bg-hover)] transition-all hover:scale-105"
-                                            data-item-id={item.id}
-                                            data-action="increase"
-                                            type="button"
-                                            aria-label="Aumentar cantidad"
-                                        >
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    
-                                    <div class="flex items-center gap-4">
-                                        <span 
-                                            class="item-total font-bold text-lg"
-                                            data-item-id={item.id}
-                                            data-price={item.totalPrice}
-                                        ></span>
-                                        
-                                        <button 
-                                            class="remove-btn p-2 text-[var(--text-tertiary)] hover:text-[var(--error)] transition-colors hover:scale-110"
-                                            data-item-id={item.id}
-                                            type="button"
-                                            aria-label={text.remove}
-                                        >
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
-                    ))}
-                    
-                </div>
-                
+                <CartItemList items={items} text={text} />
+
                 <!-- Resumen del pedido -->
-                <aside class="lg:col-span-1">
-                    <div class="order-summary card p-6 sticky top-28 animate-slide-up" style="animation-delay: 300ms">
-                        
-                        <h2 class="text-xl font-bold mb-6">
-                            {text.orderSummary}
-                        </h2>
-                        
-                        <div class="space-y-4 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-secondary">{text.subtotal}</span>
-                                <span id="subtotal-display" class="font-medium" data-price={subtotal}></span>
-                            </div>
-                            
-                            <div class="flex justify-between">
-                                <span class="text-secondary">{text.shipping}</span>
-                                <span class={`font-medium ${isFreeShipping ? 'text-[var(--success)]' : ''}`}>
-                                    {isFreeShipping ? text.shippingFree : text.shippingCalculated}
-                                </span>
-                            </div>
-                            
-                            <div class="border-t border-[var(--border-color)] pt-4">
-                                <div class="flex justify-between items-center">
-                                    <span class="font-semibold text-lg">{text.orderTotal}</span>
-                                    <span id="total-display" class="font-bold text-xl" data-price={subtotal}></span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        {!isFreeShipping && (
-                            <div class="mt-4 p-3 rounded-lg bg-[var(--bg-tertiary)] text-sm">
-                                <p class="text-secondary">{text.freeShippingNote}</p>
-                                <div class="mt-2 h-2 bg-[var(--border-color)] rounded-full overflow-hidden">
-                                    <div 
-                                        class="h-full bg-gradient-to-r from-[var(--accent-primary)] to-[var(--success)] rounded-full transition-all duration-500"
-                                        id="shipping-progress"
-                                        style={`width: ${shippingProgress}%`}
-                                    />
-                                </div>
-                            </div>
-                        )}
-                        
-                        <button 
-                            class="checkout-btn w-full btn btn-primary mt-6 py-4 text-base font-semibold group"
-                            type="button"
-                        >
-                            <span>{text.checkout}</span>
-                            <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                            </svg>
-                        </button>
-                        
-                        <div class="flex items-center justify-center gap-2 mt-4 text-xs text-tertiary">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                            <span>{text.secureCheckout}</span>
-                        </div>
-                        
-                        <div class="flex items-center justify-center gap-3 mt-4 pt-4 border-t border-[var(--border-color)]">
-                            <div class="flex items-center gap-2 text-tertiary text-xs">
-                                <span class="px-2 py-1 border border-[var(--border-color)] rounded">Visa</span>
-                                <span class="px-2 py-1 border border-[var(--border-color)] rounded">MC</span>
-                                <span class="px-2 py-1 border border-[var(--border-color)] rounded">PayPal</span>
-                            </div>
-                        </div>
-                    </div>
-                </aside>
-                
+                <OrderSummary
+                    subtotal={subtotal}
+                    isFreeShipping={isFreeShipping}
+                    shippingProgress={shippingProgress}
+                    text={text}
+                />
             </div>
-            
+
             <!-- Enlace continuar comprando -->
-            <div class="mt-12 text-center animate-fade-in" style="animation-delay: 400ms">
-                <a 
-                    href="/" 
-                    class="inline-flex items-center gap-2 text-secondary hover:text-primary transition-colors group"
-                >
-                    <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
-                    </svg>
-                    <span>{text.continueShopping}</span>
-                </a>
-            </div>
-            
+            <ContinueShopping text={text} />
         </div>
     </main>
-    
+
     <Footer locale={locale} />
 </Layout>
+
+<!-- Script de cliente -->
+<CartClientScript />
 
 <style>
     .bg-primary {
         background-color: var(--bg-primary);
     }
-    
-    .cart-item {
-        transition: all 0.3s ease;
-    }
-    
-    .cart-item.removing {
-        opacity: 0;
-        transform: translateX(-100px);
-    }
-    
-    .cart-item:hover {
-        box-shadow: var(--shadow-md);
-    }
-    
-    .order-summary {
-        background: linear-gradient(
-            135deg,
-            var(--bg-card) 0%,
-            var(--bg-secondary) 100%
-        );
-    }
-    
-    .checkout-btn {
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .checkout-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255,255,255,0.1),
-            transparent
-        );
-        transition: left 0.5s ease;
-    }
-    
-    .checkout-btn:hover::before {
-        left: 100%;
-    }
-    
-    .quantity-btn:active {
-        transform: scale(0.95);
-    }
-    
-    .text-tertiary {
-        color: var(--text-tertiary);
-    }
-    
-    .text-secondary {
-        color: var(--text-secondary);
-    }
 </style>
-
-<script>
-    /**
-     * Carrito de Compras - Script de Cliente
-     * 
-     * ARQUITECTURA:
-     * - Importamos utilidades tipadas desde /lib
-     * - Sin uso de 'any' - todos los tipos son específicos
-     */
-    import { formatPrice } from '../lib/currency';
-    import { 
-        updateItemQuantity, 
-        removeItem,
-        type CartOperationResult 
-    } from '../lib/cart-store';
-
-    // ============ TIPOS LOCALES ============
-
-    interface PriceElement extends HTMLElement {
-        dataset: {
-            price?: string;
-            itemId?: string;
-        };
-    }
-
-    interface QuantityButtonElement extends HTMLButtonElement {
-        dataset: {
-            itemId?: string;
-            action?: 'increase' | 'decrease';
-        };
-    }
-
-    interface CartItemElement extends HTMLElement {
-        dataset: {
-            itemId?: string;
-            //aqui estubo EGGSY
-            unitPrice?: string;
-        };
-    }
-
-    // ============ FUNCIONES ============
-
-    /**
-     * Actualiza todos los elementos de precio en la página
-     */
-    function updateAllPrices(): void {
-        const priceElements = document.querySelectorAll<PriceElement>(
-            '.unit-price, .item-total, #subtotal-display, #total-display'
-        );
-
-        priceElements.forEach((el) => {
-            const priceStr = el.dataset.price;
-            if (priceStr) {
-                const price = parseFloat(priceStr);
-                el.textContent = formatPrice(price);
-            }
-        });
-    }
-
-    /**
-     * Actualiza el precio de un item específico
-     */
-    function updateItemPrice(itemId: string, newQuantity: number): void {
-        const cartItem = document.querySelector<CartItemElement>(
-            `.cart-item[data-item-id="${itemId}"]`
-        );
-
-        if (!cartItem) return;
-
-        const unitPriceStr = cartItem.dataset.unitPrice;
-        if (!unitPriceStr) return;
-
-        const unitPrice = parseFloat(unitPriceStr);
-        const newTotal = unitPrice * newQuantity;
-
-        const itemTotalEl = cartItem.querySelector<PriceElement>('.item-total');
-        if (itemTotalEl) {
-            itemTotalEl.dataset.price = newTotal.toString();
-            itemTotalEl.textContent = formatPrice(newTotal);
-        }
-
-        // Actualizar totales generales (simplificado para demo)
-        recalculateGlobalTotals();
-    }
-
-    /**
-     * Recalcula los totales globales del carrito
-     */
-    function recalculateGlobalTotals(): void {
-        const itemTotals = document.querySelectorAll<PriceElement>('.item-total');
-        let subtotal = 0;
-
-        itemTotals.forEach((el) => {
-            const priceStr = el.dataset.price;
-            if (priceStr) {
-                subtotal += parseFloat(priceStr);
-            }
-        });
-
-        const subtotalEl = document.getElementById('subtotal-display') as PriceElement | null;
-        const totalEl = document.getElementById('total-display') as PriceElement | null;
-
-        if (subtotalEl) {
-            subtotalEl.dataset.price = subtotal.toString();
-            subtotalEl.textContent = formatPrice(subtotal);
-        }
-
-        if (totalEl) {
-            totalEl.dataset.price = subtotal.toString();
-            totalEl.textContent = formatPrice(subtotal);
-        }
-    }
-
-    /**
-     * Maneja el cambio de cantidad de un producto
-     */
-    function handleQuantityChange(itemId: string, delta: number): void {
-        const quantityEl = document.querySelector<HTMLElement>(
-            `.quantity-display[data-item-id="${itemId}"]`
-        );
-
-        if (!quantityEl) return;
-
-        const currentQty = parseInt(quantityEl.textContent || '1', 10);
-        const newQty = Math.max(1, Math.min(currentQty + delta, 10));
-
-        // Actualizar UI
-        quantityEl.textContent = newQty.toString();
-        quantityEl.classList.add('scale-125');
-        setTimeout(() => quantityEl.classList.remove('scale-125'), 150);
-
-        // Actualizar precios
-        updateItemPrice(itemId, newQty);
-
-        // Llamar al store (en producción iría al backend)
-        const result: CartOperationResult = updateItemQuantity(itemId, newQty);
-        console.log('Cart updated:', result.message);
-    }
-
-    /**
-     * Maneja la eliminación de un producto
-     */
-    function handleRemoveItem(itemId: string): void {
-        const itemEl = document.querySelector<HTMLElement>(
-            `.cart-item[data-item-id="${itemId}"]`
-        );
-
-        if (!itemEl) return;
-
-        // Animación de salida
-        itemEl.classList.add('removing');
-
-        setTimeout(() => {
-            itemEl.remove();
-            recalculateGlobalTotals();
-
-            // Llamar al store
-            const result: CartOperationResult = removeItem(itemId);
-            console.log('Item removed:', result.message);
-        }, 300);
-    }
-
-    // ============ INICIALIZACIÓN ============
-
-    document.addEventListener('DOMContentLoaded', () => {
-        // Formatear precios iniciales
-        updateAllPrices();
-
-        // Configurar botones de cantidad
-        const quantityButtons = document.querySelectorAll<QuantityButtonElement>('.quantity-btn');
-        quantityButtons.forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const itemId = btn.dataset.itemId;
-                const action = btn.dataset.action;
-
-                if (itemId && action) {
-                    const delta = action === 'increase' ? 1 : -1;
-                    handleQuantityChange(itemId, delta);
-                }
-            });
-        });
-
-        // Configurar botones de eliminar
-        const removeButtons = document.querySelectorAll<HTMLButtonElement>('.remove-btn');
-        removeButtons.forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const itemId = btn.dataset.itemId;
-                if (itemId) {
-                    handleRemoveItem(itemId);
-                }
-            });
-        });
-    });
-
-    // Escuchar cambios de moneda
-    window.addEventListener('currency-changed', updateAllPrices);
-</script>

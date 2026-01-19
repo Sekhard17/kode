@@ -1,0 +1,24 @@
+---
+/**
+ * CartItemList - Lista de items del carrito
+ * @module components/carrito-compras/CartItemList
+ */
+import type { CartItemDto } from "../../types";
+import type { CartTranslations } from "../../lib/translations/cart";
+import CartItem from "./CartItem.astro";
+
+interface Props {
+    items: CartItemDto[];
+    text: CartTranslations;
+}
+
+const { items, text } = Astro.props;
+---
+
+<div class="lg:col-span-2 space-y-4" id="cart-items-container">
+    {
+        items.map((item: CartItemDto, index: number) => (
+            <CartItem item={item} text={text} index={index} />
+        ))
+    }
+</div>

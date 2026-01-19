@@ -1,0 +1,40 @@
+---
+/**
+ * ContinueShopping - Enlace para continuar comprando
+ * @module components/carrito-compras/ContinueShopping
+ */
+import type { CartTranslations } from "../../lib/translations/cart";
+
+interface Props {
+    text: CartTranslations;
+}
+
+const { text } = Astro.props;
+---
+
+<div class="mt-12 text-center animate-fade-in" style="animation-delay: 400ms">
+    <a
+        href="/"
+        class="inline-flex items-center gap-2 text-secondary hover:text-primary transition-colors group"
+    >
+        <svg
+            class="w-5 h-5 transition-transform group-hover:-translate-x-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
+        </svg>
+        <span>{text.continueShopping}</span>
+    </a>
+</div>
+
+<style>
+    .text-secondary {
+        color: var(--text-secondary);
+    }
+</style>

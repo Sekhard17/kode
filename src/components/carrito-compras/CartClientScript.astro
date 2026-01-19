@@ -1,0 +1,209 @@
+---
+/**
+ * CartClientScript - Script de cliente para el carrito
+ * @module components/carrito-compras/CartClientScript
+ */
+---
+
+<script>
+    /**
+     * Carrito de Compras - Script de Cliente
+     *
+     * ARQUITECTURA:
+     * - Importamos utilidades tipadas desde /lib
+     * - Sin uso de 'any' - todos los tipos son específicos
+     */
+    import { formatPrice } from "../../lib/currency";
+    import {
+        updateItemQuantity,
+        removeItem,
+        type CartOperationResult,
+    } from "../../lib/cart-store";
+
+    // ============ TIPOS LOCALES ============
+
+    interface PriceElement extends HTMLElement {
+        dataset: {
+            price?: string;
+            itemId?: string;
+        };
+    }
+
+    interface QuantityButtonElement extends HTMLButtonElement {
+        dataset: {
+            itemId?: string;
+            action?: "increase" | "decrease";
+        };
+    }
+
+    interface CartItemElement extends HTMLElement {
+        dataset: {
+            itemId?: string;
+            unitPrice?: string;
+        };
+    }
+
+    // ============ FUNCIONES ============
+
+    /**
+     * Actualiza todos los elementos de precio en la página
+     */
+    function updateAllPrices(): void {
+        const priceElements = document.querySelectorAll<PriceElement>(
+            ".unit-price, .item-total, #subtotal-display, #total-display",
+        );
+
+        priceElements.forEach((el) => {
+            const priceStr = el.dataset.price;
+            if (priceStr) {
+                const price = parseFloat(priceStr);
+                el.textContent = formatPrice(price);
+            }
+        });
+    }
+
+    /**
+     * Actualiza el precio de un item específico
+     */
+    function updateItemPrice(itemId: string, newQuantity: number): void {
+        const cartItem = document.querySelector<CartItemElement>(
+            `.cart-item[data-item-id="${itemId}"]`,
+        );
+
+        if (!cartItem) return;
+
+        const unitPriceStr = cartItem.dataset.unitPrice;
+        if (!unitPriceStr) return;
+
+        const unitPrice = parseFloat(unitPriceStr);
+        const newTotal = unitPrice * newQuantity;
+
+        const itemTotalEl = cartItem.querySelector<PriceElement>(".item-total");
+        if (itemTotalEl) {
+            itemTotalEl.dataset.price = newTotal.toString();
+            itemTotalEl.textContent = formatPrice(newTotal);
+        }
+
+        // Actualizar totales generales
+        recalculateGlobalTotals();
+    }
+
+    /**
+     * Recalcula los totales globales del carrito
+     */
+    function recalculateGlobalTotals(): void {
+        const itemTotals =
+            document.querySelectorAll<PriceElement>(".item-total");
+        let subtotal = 0;
+
+        itemTotals.forEach((el) => {
+            const priceStr = el.dataset.price;
+            if (priceStr) {
+                subtotal += parseFloat(priceStr);
+            }
+        });
+
+        const subtotalEl = document.getElementById(
+            "subtotal-display",
+        ) as PriceElement | null;
+        const totalEl = document.getElementById(
+            "total-display",
+        ) as PriceElement | null;
+
+        if (subtotalEl) {
+            subtotalEl.dataset.price = subtotal.toString();
+            subtotalEl.textContent = formatPrice(subtotal);
+        }
+
+        if (totalEl) {
+            totalEl.dataset.price = subtotal.toString();
+            totalEl.textContent = formatPrice(subtotal);
+        }
+    }
+
+    /**
+     * Maneja el cambio de cantidad de un producto
+     */
+    function handleQuantityChange(itemId: string, delta: number): void {
+        const quantityEl = document.querySelector<HTMLElement>(
+            `.quantity-display[data-item-id="${itemId}"]`,
+        );
+
+        if (!quantityEl) return;
+
+        const currentQty = parseInt(quantityEl.textContent || "1", 10);
+        const newQty = Math.max(1, Math.min(currentQty + delta, 10));
+
+        // Actualizar UI
+        quantityEl.textContent = newQty.toString();
+        quantityEl.classList.add("scale-125");
+        setTimeout(() => quantityEl.classList.remove("scale-125"), 150);
+
+        // Actualizar precios
+        updateItemPrice(itemId, newQty);
+
+        // Llamar al store
+        const result: CartOperationResult = updateItemQuantity(itemId, newQty);
+        console.log("Cart updated:", result.message);
+    }
+
+    /**
+     * Maneja la eliminación de un producto
+     */
+    function handleRemoveItem(itemId: string): void {
+        const itemEl = document.querySelector<HTMLElement>(
+            `.cart-item[data-item-id="${itemId}"]`,
+        );
+
+        if (!itemEl) return;
+
+        // Animación de salida
+        itemEl.classList.add("removing");
+
+        setTimeout(() => {
+            itemEl.remove();
+            recalculateGlobalTotals();
+
+            // Llamar al store
+            const result: CartOperationResult = removeItem(itemId);
+            console.log("Item removed:", result.message);
+        }, 300);
+    }
+
+    // ============ INICIALIZACIÓN ============
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Formatear precios iniciales
+        updateAllPrices();
+
+        // Configurar botones de cantidad
+        const quantityButtons =
+            document.querySelectorAll<QuantityButtonElement>(".quantity-btn");
+        quantityButtons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const itemId = btn.dataset.itemId;
+                const action = btn.dataset.action;
+
+                if (itemId && action) {
+                    const delta = action === "increase" ? 1 : -1;
+                    handleQuantityChange(itemId, delta);
+                }
+            });
+        });
+
+        // Configurar botones de eliminar
+        const removeButtons =
+            document.querySelectorAll<HTMLButtonElement>(".remove-btn");
+        removeButtons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const itemId = btn.dataset.itemId;
+                if (itemId) {
+                    handleRemoveItem(itemId);
+                }
+            });
+        });
+    });
+
+    // Escuchar cambios de moneda
+    window.addEventListener("currency-changed", updateAllPrices);
+</script>
