@@ -1,0 +1,277 @@
+---
+/**
+ * SizeSelector - Selector de tallas interactivo
+ */
+
+import type { ProductVariantDto } from "../../types";
+import { SizeLabels } from "../../types/enums";
+
+interface Props {
+    variants: ProductVariantDto[];
+    locale?: "es" | "en";
+}
+
+const { variants, locale = "es" } = Astro.props;
+
+const t = {
+    es: {
+        selectSize: "Selecciona tu talla",
+        sizeGuide: "Guía de tallas",
+        lowStock: "Últimas unidades",
+        outOfStock: "Agotado",
+    },
+    en: {
+        selectSize: "Select your size",
+        sizeGuide: "Size Guide",
+        lowStock: "Low stock",
+        outOfStock: "Out of stock",
+    },
+};
+
+const text = t[locale];
+
+// Ordenar variantes por talla
+const sortedVariants = [...variants].sort((a, b) => a.size - b.size);
+---
+
+<div class="size-selector">
+    <div class="size-header">
+        <span class="size-label">{text.selectSize}</span>
+        <button class="size-guide-btn" type="button">
+            <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                ></path>
+            </svg>
+            {text.sizeGuide}
+        </button>
+    </div>
+
+    <div class="sizes-grid" id="sizes-container">
+        {
+            sortedVariants.map((variant) => (
+                <button
+                    type="button"
+                    class:list={[
+                        "size-btn",
+                        {
+                            unavailable:
+                                !variant.isAvailable || variant.stock <= 0,
+                        },
+                    ]}
+                    data-variant-id={variant.id}
+                    data-size={variant.size}
+                    data-stock={variant.stock}
+                    data-available={variant.isAvailable && variant.stock > 0}
+                    data-low-stock={
+                        variant.isAvailable &&
+                        variant.stock > 0 &&
+                        variant.stock <= 3
+                    }
+                    disabled={!variant.isAvailable || variant.stock <= 0}
+                >
+                    <span class="size-name">{SizeLabels[variant.size]}</span>
+                    <span class="low-stock-indicator" />
+                    <span class="unavailable-line" />
+                </button>
+            ))
+        }
+    </div>
+
+    <!-- Stock indicator -->
+    <div class="stock-message" id="stock-message" style="display: none;">
+        <span class="stock-text"></span>
+    </div>
+</div>
+
+<style>
+    .size-selector {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .size-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .size-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .size-guide-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    .size-guide-btn:hover {
+        color: var(--text-primary);
+    }
+
+    .sizes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr));
+        gap: 0.5rem;
+    }
+
+    .size-btn {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 3rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        background-color: var(--bg-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        overflow: hidden;
+    }
+
+    .size-btn:hover:not(:disabled) {
+        border-color: var(--accent-primary);
+        background-color: var(--bg-tertiary);
+    }
+
+    .size-btn.selected {
+        border-color: var(--accent-primary);
+        background-color: var(--accent-primary);
+        color: var(--text-inverse);
+    }
+
+    .size-btn.unavailable {
+        color: var(--text-tertiary);
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .unavailable-line {
+        position: absolute;
+        width: 140%;
+        height: 2px;
+        background-color: var(--text-tertiary);
+        transform: rotate(-45deg);
+        display: none;
+    }
+
+    .size-btn.unavailable .unavailable-line {
+        display: block;
+    }
+
+    .low-stock-indicator {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        width: 0.5rem;
+        height: 0.5rem;
+        background-color: #f59e0b;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+        display: none;
+    }
+
+    .size-btn[data-low-stock="true"]:not(.unavailable) .low-stock-indicator {
+        display: block;
+    }
+
+    @keyframes pulse {
+        0%,
+        100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    .stock-message {
+        padding: 0.75rem 1rem;
+        background-color: var(--bg-secondary);
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        transition: all 0.3s ease;
+    }
+
+    .stock-message.low-stock .stock-text {
+        color: #f59e0b;
+    }
+
+    .stock-message.out-of-stock .stock-text {
+        color: #ef4444;
+    }
+</style>
+
+<script>
+    function initSizeSelector() {
+        const container = document.getElementById("sizes-container");
+        const stockMessage = document.getElementById("stock-message");
+        const buttons =
+            container?.querySelectorAll<HTMLButtonElement>(".size-btn");
+
+        if (!buttons || !stockMessage) return;
+
+        buttons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                if (btn.disabled) return;
+
+                // Remove previous selection
+                buttons.forEach((b) => b.classList.remove("selected"));
+                btn.classList.add("selected");
+
+                // Get stock info
+                const stock = parseInt(btn.dataset.stock || "0");
+                const stockText = stockMessage.querySelector(
+                    ".stock-text",
+                ) as HTMLElement;
+
+                stockMessage.style.display = "block";
+                stockMessage.classList.remove("low-stock", "out-of-stock");
+
+                if (stock <= 3) {
+                    stockMessage.classList.add("low-stock");
+                    stockText.textContent = `¡Solo quedan ${stock} unidades!`;
+                } else {
+                    stockText.textContent = `${stock} unidades disponibles`;
+                }
+
+                // Dispatch custom event
+                window.dispatchEvent(
+                    new CustomEvent("size-selected", {
+                        detail: {
+                            variantId: btn.dataset.variantId,
+                            size: parseInt(btn.dataset.size || "0"),
+                            stock: stock,
+                        },
+                    }),
+                );
+            });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", initSizeSelector);
+    document.addEventListener("astro:page-load", initSizeSelector);
+</script>

@@ -1,0 +1,300 @@
+---
+/**
+ * =================================================================
+ * PÁGINA DE DETALLE DE PRODUCTO - KØDE Streetwear
+ * =================================================================
+ *
+ * Ruta: /producto/[id]
+ * Renderiza el detalle completo de un producto usando su slug.
+ */
+
+// SSR - Renderizado en servidor para rutas dinámicas
+export const prerender = false;
+
+// ============ IMPORTS ============
+
+// Layout y componentes globales
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Footer from "../../components/Footer.astro";
+
+// Componentes del producto
+import ProductGallery from "../../components/producto/ProductGallery.astro";
+import ProductInfo from "../../components/producto/ProductInfo.astro";
+import SizeSelector from "../../components/producto/SizeSelector.astro";
+import ProductActions from "../../components/producto/ProductActions.astro";
+
+// Servicios y tipos
+import { getProductBySlug } from "../../services/products.service";
+import type { ProductDto } from "../../types";
+
+// ============ OBTENER PRODUCTO ============
+
+const { id } = Astro.params;
+
+if (!id) {
+    return Astro.redirect("/404");
+}
+
+let product: ProductDto;
+
+try {
+    product = await getProductBySlug(id);
+} catch (error) {
+    console.error("Error fetching product:", error);
+    return Astro.redirect("/404");
+}
+
+// Obtener idioma
+const locale = (Astro.cookies.get("kode_locale")?.value as "es" | "en") || "es";
+
+// Verificar disponibilidad general
+const hasAvailableVariants = product.variants.some(
+    (v) => v.isAvailable && v.stock > 0,
+);
+
+// SEO
+const pageTitle = `${product.name} | KØDE`;
+const pageDescription =
+    product.description || `${product.name} - Streetwear Premium de KØDE`;
+const primaryImage =
+    product.images.find((img) => img.isPrimary)?.url || product.images[0]?.url;
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+    <Navbar locale={locale} />
+
+    <main class="product-page">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb container-custom" aria-label="Navegación">
+            <ol>
+                <li><a href="/">Inicio</a></li>
+                <li><span class="separator">/</span></li>
+                <li>
+                    <a href={`/categoria/${product.categoryId}`}
+                        >{product.categoryName}</a
+                    >
+                </li>
+                <li><span class="separator">/</span></li>
+                <li class="current" aria-current="page">{product.name}</li>
+            </ol>
+        </nav>
+
+        <!-- Contenido principal -->
+        <div class="product-container container-custom">
+            <div class="product-grid">
+                <!-- Galería (izquierda) -->
+                <div class="gallery-column">
+                    <ProductGallery
+                        images={product.images}
+                        productName={product.name}
+                    />
+                </div>
+
+                <!-- Info (derecha) -->
+                <div class="info-column">
+                    <ProductInfo
+                        name={product.name}
+                        categoryName={product.categoryName}
+                        description={product.description}
+                        price={product.price}
+                        compareAtPrice={product.compareAtPrice}
+                        hasDiscount={product.hasDiscount}
+                        discountPercentage={product.discountPercentage}
+                    />
+
+                    <SizeSelector variants={product.variants} locale={locale} />
+
+                    <ProductActions
+                        productId={product.id}
+                        isAvailable={hasAvailableVariants}
+                        locale={locale}
+                    />
+
+                    <!-- Features -->
+                    <div class="product-features">
+                        <div class="feature">
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                                ></path>
+                            </svg>
+                            <span>Envío gratis sobre $50.000</span>
+                        </div>
+                        <div class="feature">
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                ></path>
+                            </svg>
+                            <span>Devolución en 30 días</span>
+                        </div>
+                        <div class="feature">
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                ></path>
+                            </svg>
+                            <span>Compra 100% segura</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <Footer locale={locale} />
+</Layout>
+
+<style>
+    .product-page {
+        padding-top: 104px;
+        min-height: 100vh;
+        background-color: var(--bg-primary);
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        padding: 1.5rem 0;
+    }
+
+    .breadcrumb ol {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        font-size: 0.875rem;
+    }
+
+    .breadcrumb a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .breadcrumb a:hover {
+        color: var(--text-primary);
+    }
+
+    .breadcrumb .separator {
+        color: var(--text-tertiary);
+    }
+
+    .breadcrumb .current {
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    /* Product Container */
+    .product-container {
+        padding-bottom: 4rem;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    @media (min-width: 1024px) {
+        .product-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+    }
+
+    /* Columns */
+    .gallery-column {
+        order: 1;
+    }
+
+    .info-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        order: 2;
+    }
+
+    @media (min-width: 1024px) {
+        .info-column {
+            padding-top: 1rem;
+        }
+    }
+
+    /* Features */
+    .product-features {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.5rem;
+        background-color: var(--bg-secondary);
+        border-radius: 1rem;
+        margin-top: 1rem;
+    }
+
+    .feature {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .feature svg {
+        color: var(--text-tertiary);
+        flex-shrink: 0;
+    }
+
+    /* Animations */
+    .gallery-column,
+    .info-column {
+        animation: fadeSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        opacity: 0;
+    }
+
+    .gallery-column {
+        animation-delay: 0.1s;
+    }
+
+    .info-column {
+        animation-delay: 0.2s;
+    }
+
+    @keyframes fadeSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

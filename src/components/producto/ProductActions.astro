@@ -1,0 +1,410 @@
+---
+/**
+ * ProductActions - Botones de acción (Carrito, Wishlist, Cantidad)
+ */
+
+interface Props {
+    productId: string;
+    isAvailable: boolean;
+    locale?: "es" | "en";
+}
+
+const { productId, isAvailable, locale = "es" } = Astro.props;
+
+const t = {
+    es: {
+        addToCart: "Agregar al Carrito",
+        outOfStock: "Agotado",
+        selectSize: "Selecciona una talla",
+        addToWishlist: "Agregar a favoritos",
+        added: "¡Agregado!",
+    },
+    en: {
+        addToCart: "Add to Cart",
+        outOfStock: "Out of Stock",
+        selectSize: "Select a size",
+        addToWishlist: "Add to wishlist",
+        added: "Added!",
+    },
+};
+
+const text = t[locale];
+---
+
+<div class="product-actions">
+    <!-- Cantidad -->
+    <div class="quantity-selector">
+        <button
+            type="button"
+            class="qty-btn qty-decrease"
+            id="qty-decrease"
+            aria-label="Disminuir cantidad"
+        >
+            <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20 12H4"></path>
+            </svg>
+        </button>
+        <input
+            type="number"
+            id="quantity-input"
+            class="qty-input"
+            value="1"
+            min="1"
+            max="10"
+            readonly
+        />
+        <button
+            type="button"
+            class="qty-btn qty-increase"
+            id="qty-increase"
+            aria-label="Aumentar cantidad"
+        >
+            <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6v12m6-6H6"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Botones principales -->
+    <div class="action-buttons">
+        <button
+            type="button"
+            class="add-to-cart-btn"
+            id="add-to-cart-btn"
+            data-product-id={productId}
+            disabled={!isAvailable}
+        >
+            <span class="btn-text">
+                {isAvailable ? text.selectSize : text.outOfStock}
+            </span>
+            <span class="btn-icon">
+                <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                </svg>
+            </span>
+            <span class="btn-loader" style="display: none;">
+                <svg
+                    class="animate-spin w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                >
+                    <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"></circle>
+                    <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+            </span>
+        </button>
+
+        <button
+            type="button"
+            class="wishlist-btn"
+            id="wishlist-btn"
+            data-product-id={productId}
+            aria-label={text.addToWishlist}
+        >
+            <svg
+                class="heart-icon w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                ></path>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<style>
+    .product-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* Quantity Selector */
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem;
+        overflow: hidden;
+        width: fit-content;
+    }
+
+    .qty-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        color: var(--text-secondary);
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .qty-btn:hover {
+        color: var(--text-primary);
+        background-color: var(--bg-tertiary);
+    }
+
+    .qty-btn:active {
+        transform: scale(0.95);
+    }
+
+    .qty-input {
+        width: 3rem;
+        height: 3rem;
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        background: transparent;
+        border: none;
+        outline: none;
+        -moz-appearance: textfield;
+    }
+
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .add-to-cart-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        height: 3.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-inverse);
+        background: linear-gradient(
+            135deg,
+            var(--accent-primary) 0%,
+            var(--accent-secondary) 100%
+        );
+        border: none;
+        border-radius: 1rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: 0 4px 14px -3px rgba(0, 0, 0, 0.3);
+    }
+
+    .add-to-cart-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px -3px rgba(0, 0, 0, 0.4);
+    }
+
+    .add-to-cart-btn:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .add-to-cart-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: var(--text-tertiary);
+    }
+
+    .add-to-cart-btn.loading .btn-text,
+    .add-to-cart-btn.loading .btn-icon {
+        display: none;
+    }
+
+    .add-to-cart-btn.loading .btn-loader {
+        display: block !important;
+    }
+
+    .add-to-cart-btn.success {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+
+    /* Wishlist Button */
+    .wishlist-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3.5rem;
+        height: 3.5rem;
+        color: var(--text-secondary);
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .wishlist-btn:hover {
+        color: #ef4444;
+        border-color: #ef4444;
+        background-color: rgba(239, 68, 68, 0.05);
+    }
+
+    .wishlist-btn.active {
+        color: #ef4444;
+        background-color: rgba(239, 68, 68, 0.1);
+        border-color: #ef4444;
+    }
+
+    .wishlist-btn.active .heart-icon {
+        fill: #ef4444;
+    }
+</style>
+
+<script>
+    function initProductActions() {
+        const qtyInput = document.getElementById(
+            "quantity-input",
+        ) as HTMLInputElement | null;
+        const decreaseBtn = document.getElementById("qty-decrease");
+        const increaseBtn = document.getElementById("qty-increase");
+        const addToCartBtn = document.getElementById(
+            "add-to-cart-btn",
+        ) as HTMLButtonElement | null;
+        const wishlistBtn = document.getElementById("wishlist-btn");
+
+        let selectedVariantId: string | null = null;
+        let maxStock = 10;
+
+        // Quantity controls
+        if (qtyInput && decreaseBtn && increaseBtn) {
+            decreaseBtn.addEventListener("click", () => {
+                const current = parseInt(qtyInput.value);
+                if (current > 1) {
+                    qtyInput.value = String(current - 1);
+                }
+            });
+
+            increaseBtn.addEventListener("click", () => {
+                const current = parseInt(qtyInput.value);
+                if (current < maxStock) {
+                    qtyInput.value = String(current + 1);
+                }
+            });
+        }
+
+        // Listen for size selection
+        window.addEventListener("size-selected", ((
+            e: CustomEvent<{ variantId: string; size: number; stock: number }>,
+        ) => {
+            selectedVariantId = e.detail.variantId;
+            maxStock = Math.min(e.detail.stock, 10);
+
+            if (addToCartBtn) {
+                addToCartBtn.disabled = false;
+                const btnText = addToCartBtn.querySelector(".btn-text");
+                if (btnText) {
+                    btnText.textContent = "Agregar al Carrito";
+                }
+            }
+
+            // Reset quantity if exceeds new max
+            if (qtyInput && parseInt(qtyInput.value) > maxStock) {
+                qtyInput.value = String(maxStock);
+            }
+        }) as EventListener);
+
+        // Add to cart
+        if (addToCartBtn) {
+            addToCartBtn.addEventListener("click", async () => {
+                if (!selectedVariantId || addToCartBtn.disabled) return;
+
+                const quantity = parseInt(qtyInput?.value || "1");
+
+                addToCartBtn.classList.add("loading");
+                addToCartBtn.disabled = true;
+
+                try {
+                    // Simular llamada a API (integrar con cart.service.ts)
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+                    addToCartBtn.classList.remove("loading");
+                    addToCartBtn.classList.add("success");
+
+                    const btnText = addToCartBtn.querySelector(".btn-text");
+                    if (btnText) btnText.textContent = "¡Agregado!";
+
+                    setTimeout(() => {
+                        addToCartBtn.classList.remove("success");
+                        addToCartBtn.disabled = false;
+                        if (btnText) btnText.textContent = "Agregar al Carrito";
+                    }, 2000);
+                } catch (error) {
+                    addToCartBtn.classList.remove("loading");
+                    addToCartBtn.disabled = false;
+                    console.error("Error adding to cart:", error);
+                }
+            });
+        }
+
+        // Wishlist toggle
+        if (wishlistBtn) {
+            wishlistBtn.addEventListener("click", () => {
+                wishlistBtn.classList.toggle("active");
+            });
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", initProductActions);
+    document.addEventListener("astro:page-load", initProductActions);
+</script>

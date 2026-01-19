@@ -1,0 +1,162 @@
+---
+/**
+ * ProductInfo - Información del producto con precios y categoría
+ */
+
+interface Props {
+    name: string;
+    categoryName: string;
+    description: string | null;
+    price: number;
+    compareAtPrice: number | null;
+    hasDiscount: boolean;
+    discountPercentage: number | null;
+}
+
+const {
+    name,
+    categoryName,
+    description,
+    price,
+    compareAtPrice,
+    hasDiscount,
+    discountPercentage,
+} = Astro.props;
+---
+
+<div class="product-info">
+    <!-- Categoría -->
+    <span class="category">{categoryName}</span>
+
+    <!-- Nombre -->
+    <h1 class="product-name">{name}</h1>
+
+    <!-- Precios -->
+    <div class="price-container">
+        <span class="current-price product-price" data-price={price}>
+            <!-- Formateado por JS -->
+        </span>
+
+        {compareAtPrice && (
+            <span class="compare-price product-compare-price" data-price={compareAtPrice}>
+                <!-- Formateado por JS -->
+            </span>
+        )}
+
+        {hasDiscount && discountPercentage && (
+            <span class="discount-badge">
+                -{discountPercentage}% OFF
+            </span>
+        )}
+    </div>
+
+    <!-- Descripción -->
+    {description && (
+        <div class="description">
+            <p>{description}</p>
+        </div>
+    )}
+
+    <!-- Divider -->
+    <div class="divider"></div>
+</div>
+
+<style>
+    .product-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .category {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+    }
+
+    .product-name {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    @media (min-width: 768px) {
+        .product-name {
+            font-size: 2.5rem;
+        }
+    }
+
+    .price-container {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+    }
+
+    .current-price {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .compare-price {
+        font-size: 1.25rem;
+        color: var(--text-tertiary);
+        text-decoration: line-through;
+    }
+
+    .discount-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.025em;
+        color: white;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        border-radius: 9999px;
+        box-shadow: 0 4px 14px -3px rgba(239, 68, 68, 0.4);
+    }
+
+    .description {
+        margin-top: 1rem;
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .description p {
+        margin: 0;
+    }
+
+    .divider {
+        height: 1px;
+        background-color: var(--border-color);
+        margin: 1rem 0;
+    }
+</style>
+
+<script>
+    import { formatPrice } from "../../lib/currency";
+
+    function updateProductPrices() {
+        document.querySelectorAll<HTMLElement>(".product-price").forEach((el) => {
+            const price = parseFloat(el.dataset.price || "0");
+            el.textContent = formatPrice(price);
+        });
+
+        document.querySelectorAll<HTMLElement>(".product-compare-price").forEach((el) => {
+            const price = parseFloat(el.dataset.price || "0");
+            el.textContent = formatPrice(price);
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", updateProductPrices);
+    document.addEventListener("astro:page-load", updateProductPrices);
+    window.addEventListener("currency-changed", updateProductPrices);
+</script>
