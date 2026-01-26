@@ -104,13 +104,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
         async session({ session, token }) {
             session.user = {
-                id: token.id,
-                email: token.email,
-                name: token.name,
-                image: token.image,
-                role: token.role,
+                id: token.id as string,
+                email: token.email as string,
+                name: (token.name as string | null) ?? null,
+                image: (token.image as string | null) ?? null,
+                role: token.role as Role,
             };
-            session.accessToken = token.accessToken;
+            session.accessToken = token.accessToken as string;
             return session;
         },
     },
