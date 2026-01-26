@@ -1,18 +1,52 @@
-// User types
-export type Role = 'ADMIN' | 'CUSTOMER';
+// Enums matching Prisma schema
+export type Role = 'CUSTOMER' | 'ADMIN';
 
+export type OrderStatus =
+    | 'CREATED'
+    | 'PAYMENT_PENDING'
+    | 'PAID'
+    | 'PREPARING'
+    | 'SHIPPED'
+    | 'DELIVERED'
+    | 'CANCELLED'
+    | 'REFUNDED';
+
+export type PaymentProvider = 'FLOW';
+
+export type PaymentStatus =
+    | 'INITIATED'
+    | 'PENDING'
+    | 'APPROVED'
+    | 'REJECTED'
+    | 'CANCELLED'
+    | 'FAILED'
+    | 'REFUNDED';
+
+export type CouponType = 'PERCENT' | 'FIXED';
+
+export type ShippingPricingType = 'FLAT' | 'BY_REGION' | 'FREE' | 'PICKUP';
+
+export type LegalPageType = 'TERMS' | 'PRIVACY' | 'SHIPPING' | 'RETURNS' | 'CONTACT';
+
+// User types
 export interface User {
     id: string;
+    name: string | null;
     email: string;
+    emailVerified: Date | null;
+    image: string | null;
     role: Role;
-    firstName: string | null;
-    lastName: string | null;
-    phone: string | null;
     createdAt: Date;
     updatedAt: Date;
 }
 
-export interface UserWithoutPassword extends Omit<User, 'password'> { }
+export interface UserPublic {
+    id: string;
+    name: string | null;
+    email: string;
+    image: string | null;
+    role: Role;
+}
 
 // Auth types
 export interface LoginCredentials {
@@ -23,8 +57,7 @@ export interface LoginCredentials {
 export interface RegisterData {
     email: string;
     password: string;
-    firstName?: string;
-    lastName?: string;
+    name?: string;
 }
 
 export interface AuthTokens {
@@ -38,4 +71,13 @@ export interface JwtPayload {
     role: Role;
     iat?: number;
     exp?: number;
+}
+
+// Session type for Auth.js
+export interface SessionUser {
+    id: string;
+    email: string;
+    name: string | null;
+    image: string | null;
+    role: Role;
 }

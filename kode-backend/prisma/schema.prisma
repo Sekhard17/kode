@@ -1,0 +1,520 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+/// =======================
+/// ENUMS
+/// =======================
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  CREATED
+  PAYMENT_PENDING
+  PAID
+  PREPARING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  FLOW
+}
+
+enum PaymentStatus {
+  INITIATED
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  FAILED
+  REFUNDED
+}
+
+enum CouponType {
+  PERCENT
+  FIXED
+}
+
+enum ShippingPricingType {
+  FLAT
+  BY_REGION
+  FREE
+  PICKUP
+}
+
+enum LegalPageType {
+  TERMS
+  PRIVACY
+  SHIPPING
+  RETURNS
+  CONTACT
+}
+
+/// =======================
+/// AUTH (Auth.js / NextAuth Prisma Adapter)
+/// =======================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?   // para Credentials login (correo + contraseña)
+  role          Role      @default(CUSTOMER)
+
+  accounts      Account[]
+  sessions      Session[]
+
+  addresses     Address[]
+  carts         Cart[]
+  orders        Order[]
+  couponUses    CouponRedemption[]
+  auditLogs     AdminAuditLog[] @relation("AdminActor")
+  legalPages    LegalPage[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([role])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+/// =======================
+/// CATALOG
+/// =======================
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  parentId    String?
+  parent      Category? @relation("CategoryParent", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryParent")
+
+  products    Product[]
+
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([parentId])
+  @@index([isActive, sortOrder])
+}
+
+model Product {
+  id            String          @id @default(cuid())
+  name          String
+  slug          String          @unique
+  description   String?
+  detailsHtml   String?         // opcional para descripciones ricas
+  categoryId    String?
+  category      Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  isActive      Boolean         @default(true)
+  isFeatured    Boolean         @default(false)
+
+  images        ProductImage[]
+  variants      ProductVariant[]
+  orderItems    OrderItem[]
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([categoryId])
+  @@index([isActive, isFeatured])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  /// Path en Supabase Storage, por ejemplo:
+  /// product-images/<productId>/<filename>.webp
+  path      String
+  altText   String?
+  sortOrder Int      @default(0)
+  isPrimary Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([productId, sortOrder])
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  sku       String   @unique
+  size      String   // "S", "M", "L", "40", etc.
+  color     String?  // opcional si hay productos sin color
+  priceClp  Int      // precio en CLP (entero)
+  stock     Int      @default(0)
+
+  isActive  Boolean  @default(true)
+
+  cartItems CartItem[]
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, size, color])
+  @@index([productId, isActive])
+  @@index([priceClp])
+}
+
+/// =======================
+/// CART
+/// =======================
+
+model Cart {
+  id        String    @id @default(cuid())
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  /// Para carrito invitado puedes guardar un token en cookie y mapearlo aquí
+  guestKey  String?   @unique
+
+  items     CartItem[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model CartItem {
+  id        String         @id @default(cuid())
+  cartId    String
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+
+  quantity  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, variantId])
+  @@index([variantId])
+}
+
+/// =======================
+/// ADDRESSES
+/// =======================
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  label       String?  // "Casa", "Oficina"
+  fullName    String
+  phone       String
+  email       String?
+
+  country     String   @default("CL")
+  region      String   // Región
+  city        String   // Ciudad
+  commune     String   // Comuna
+  addressLine String   // Calle + número
+  addressLine2 String? // Depto/oficina
+  reference   String?
+
+  isDefault   Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+/// =======================
+/// SHIPPING METHODS (MVP flexible)
+/// =======================
+
+model ShippingMethod {
+  id            String             @id @default(cuid())
+  name          String
+  pricingType   ShippingPricingType
+  isActive      Boolean            @default(true)
+
+  /// Para FLAT: flatPriceClp
+  flatPriceClp  Int?
+
+  /// Para BY_REGION:
+  /// usar tabla ShippingRateByRegion
+  ratesByRegion ShippingRateByRegion[]
+
+  /// Para PICKUP: puede ser 0 y descripción
+  description   String?
+
+  sortOrder     Int                @default(0)
+
+  orders        Order[]
+
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model ShippingRateByRegion {
+  id              String         @id @default(cuid())
+  shippingMethodId String
+  shippingMethod  ShippingMethod @relation(fields: [shippingMethodId], references: [id], onDelete: Cascade)
+
+  region          String
+  priceClp        Int
+
+  @@unique([shippingMethodId, region])
+  @@index([region])
+}
+
+/// =======================
+/// COUPONS
+/// =======================
+
+model Coupon {
+  id            String      @id @default(cuid())
+  code          String      @unique
+  type          CouponType
+  value         Int         // PERCENT: 1..100, FIXED: CLP entero
+  minSubtotalClp Int?       // mínimo subtotal para aplicar
+  maxRedemptions Int?       // usos máximos totales
+  maxPerUser     Int?       // usos máximos por usuario
+
+  startsAt      DateTime?
+  endsAt        DateTime?
+
+  isActive      Boolean     @default(true)
+
+  redemptions   CouponRedemption[]
+  orders        Order[]
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([isActive])
+  @@index([startsAt, endsAt])
+}
+
+model CouponRedemption {
+  id        String   @id @default(cuid())
+  couponId  String
+  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  orderId   String?  @unique
+  order     Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  redeemedAt DateTime @default(now())
+
+  @@index([couponId])
+  @@index([userId])
+}
+
+/// =======================
+/// ORDERS
+/// =======================
+
+model Order {
+  id            String       @id @default(cuid())
+  orderNumber   String       @unique // folio visible, generado por app
+  status        OrderStatus  @default(CREATED)
+
+  userId        String?
+  user          User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  /// snapshot de cliente (para invitado o para histórico)
+  customerName  String
+  customerEmail String
+  customerPhone String?
+
+  /// Dirección snapshot
+  shipCountry   String   @default("CL")
+  shipRegion    String
+  shipCity      String
+  shipCommune   String
+  shipAddress1  String
+  shipAddress2  String?
+  shipReference String?
+
+  shippingMethodId String?
+  shippingMethod   ShippingMethod? @relation(fields: [shippingMethodId], references: [id], onDelete: SetNull)
+
+  shippingPriceClp Int      @default(0)
+
+  subtotalClp     Int       @default(0)
+  discountClp     Int       @default(0)
+  totalClp        Int       @default(0)
+
+  couponId        String?
+  coupon          Coupon?   @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  couponRedemption CouponRedemption?
+
+  items           OrderItem[]
+  payments        Payment[]
+
+  trackingCode    String?
+  trackingUrl     String?
+
+  notes           String?
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id         String         @id @default(cuid())
+  orderId    String
+  order      Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId  String?
+  product    Product?       @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  variantId  String?
+  variant    ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  productName String
+  variantSku  String
+  size        String
+  color       String?
+
+  unitPriceClp Int
+  quantity     Int
+  lineTotalClp Int
+
+  @@index([orderId])
+  @@index([variantId])
+}
+
+/// =======================
+/// PAYMENTS (Flow)
+/// =======================
+
+model Payment {
+  id            String         @id @default(cuid())
+  orderId       String
+  order         Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  provider      PaymentProvider
+  status        PaymentStatus  @default(INITIATED)
+
+  amountClp     Int
+
+  /// id/folio entregado por Flow (según integración)
+  providerPaymentId String?    @unique
+  providerOrderId   String?    @unique
+
+  /// payload crudo de webhook/confirmación
+  /// OJO: en código tratar como `unknown` y validar/parsear
+  rawPayload    Json?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([provider, status])
+}
+
+/// =======================
+/// LEGAL PAGES
+/// =======================
+
+model LegalPage {
+  id        String       @id @default(cuid())
+  type      LegalPageType @unique
+  title     String
+  contentMd String       // markdown
+
+  updatedByUserId String?
+  updatedByUser   User?  @relation(fields: [updatedByUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// =======================
+/// ADMIN AUDIT LOGS (opcional pero muy útil)
+/// =======================
+
+model AdminAuditLog {
+  id        String   @id @default(cuid())
+
+  actorUserId String?
+  actor       User?  @relation("AdminActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  action    String   // ejemplo: "PRODUCT_CREATE", "ORDER_STATUS_CHANGE"
+  entity    String   // "Product", "Order"
+  entityId  String?
+  metadata  Json?    // en código: `unknown` + parse si lo usas
+
+  createdAt DateTime @default(now())
+
+  @@index([actorUserId])
+  @@index([action])
+  @@index([createdAt])
+}

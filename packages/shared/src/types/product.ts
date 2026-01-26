@@ -5,6 +5,13 @@ export interface Category {
     slug: string;
     description: string | null;
     parentId: string | null;
+    sortOrder: number;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface CategoryWithChildren extends Category {
     parent?: Category | null;
     children?: Category[];
 }
@@ -15,11 +22,10 @@ export interface Product {
     name: string;
     slug: string;
     description: string | null;
-    categoryId: string;
-    category?: Category;
+    detailsHtml: string | null;
+    categoryId: string | null;
     isActive: boolean;
-    images?: ProductImage[];
-    variants?: ProductVariant[];
+    isFeatured: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -27,9 +33,11 @@ export interface Product {
 export interface ProductImage {
     id: string;
     productId: string;
-    url: string;
-    alt: string | null;
+    path: string;
+    altText: string | null;
     sortOrder: number;
+    isPrimary: boolean;
+    createdAt: Date;
 }
 
 export interface ProductVariant {
@@ -37,20 +45,38 @@ export interface ProductVariant {
     productId: string;
     sku: string;
     size: string;
-    color: string;
-    priceCLP: number;
+    color: string | null;
+    priceClp: number;
     stock: number;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
-// Product listing (catalog view)
+// Full product with relations
+export interface ProductWithDetails extends Product {
+    category?: Category | null;
+    images: ProductImage[];
+    variants: ProductVariant[];
+}
+
+// Product listing (catalog view) - optimized for lists
 export interface ProductListItem {
     id: string;
     name: string;
     slug: string;
-    categoryId: string;
-    categoryName: string;
+    categoryId: string | null;
+    categoryName: string | null;
+    categorySlug: string | null;
     mainImage: string | null;
-    minPriceCLP: number;
-    maxPriceCLP: number;
+    minPriceClp: number;
+    maxPriceClp: number;
     hasStock: boolean;
+    isFeatured: boolean;
+}
+
+// Available sizes/colors for product
+export interface ProductVariantOptions {
+    sizes: string[];
+    colors: string[];
 }
