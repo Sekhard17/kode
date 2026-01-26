@@ -1,0 +1,4 @@
+packages:
+  - 'kode-frontend'
+  - 'kode-backend'
+  - 'packages/*'
