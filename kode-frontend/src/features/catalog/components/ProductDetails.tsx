@@ -7,6 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ProductDetail, ProductVariant } from '../types';
 import { ShoppingBag, ChevronRight, Info } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useCart } from '../../cart/hooks/useCart';
+import { addItemToCart } from '../../cart/services/cart.service';
+import { toast } from 'sonner';
 
 interface ProductDetailsProps {
     product: ProductDetail;
@@ -20,7 +24,27 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         product.images.find(img => img.isPrimary)?.path || product.images[0]?.path
     );
 
-    const discountedPrice = null; // Placeholder for future logic
+    const { data: session } = useSession();
+    const { getGuestKey, refreshCart } = useCart();
+    const [isAdding, setIsAdding] = useState(false);
+
+    const handleAddToCart = async () => {
+        if (!selectedVariant) return;
+
+        try {
+            setIsAdding(true);
+            const guestKey = getGuestKey();
+            const accessToken = (session?.user as any)?.accessToken;
+
+            await addItemToCart(selectedVariant.id, 1, accessToken, guestKey);
+            toast.success('Producto añadido al carrito');
+            refreshCart();
+        } catch (error: any) {
+            toast.error(error.message || 'Error al añadir al carrito');
+        } finally {
+            setIsAdding(false);
+        }
+    };
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
@@ -103,10 +127,10 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                                     disabled={v.stock === 0}
                                     onClick={() => setSelectedVariant(v)}
                                     className={`min-w-[50px] h-[50px] flex items-center justify-center rounded-xl border-2 font-bold transition-all ${selectedVariant?.id === v.id
-                                            ? 'border-orange-500 bg-orange-500/10 text-white shadow-[0_0_15px_rgba(249,115,22,0.3)]'
-                                            : v.stock === 0
-                                                ? 'border-zinc-800 text-zinc-700 cursor-not-allowed'
-                                                : 'border-zinc-800 text-zinc-400 hover:border-zinc-600'
+                                        ? 'border-orange-500 bg-orange-500/10 text-white shadow-[0_0_15px_rgba(249,115,22,0.3)]'
+                                        : v.stock === 0
+                                            ? 'border-zinc-800 text-zinc-700 cursor-not-allowed'
+                                            : 'border-zinc-800 text-zinc-400 hover:border-zinc-600'
                                         }`}
                                 >
                                     {v.size}
@@ -120,11 +144,12 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                 <div className="flex flex-col sm:flex-row gap-4 mt-auto">
                     <Button
                         size="lg"
-                        disabled={!selectedVariant || selectedVariant.stock === 0}
+                        disabled={!selectedVariant || selectedVariant.stock === 0 || isAdding}
+                        onClick={handleAddToCart}
                         className="flex-1 bg-white hover:bg-zinc-200 text-black h-16 rounded-2xl text-lg font-black uppercase transition-all active:scale-95"
                     >
                         <ShoppingBag className="mr-3 h-6 w-6" />
-                        Añadir al Carrito
+                        {isAdding ? 'Añadiendo...' : 'Añadir al Carrito'}
                     </Button>
                 </div>
 

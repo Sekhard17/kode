@@ -6,6 +6,7 @@ import { ShoppingBag, User, Search, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useCartStore } from '@/features/cart/store/useCartStore';
 
 const NAV_LINKS = [
     { name: 'Inicio', href: '/' },
@@ -25,6 +26,8 @@ export function Navbar() {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const { cartCount } = useCartStore(); // Added useCartStore hook
 
     return (
         <nav
@@ -63,12 +66,16 @@ export function Navbar() {
                                 <User className="h-5 w-5" />
                             </Button>
                         </Link>
-                        <Button variant="ghost" size="icon" className="relative text-white hover:bg-zinc-900 rounded-full transition-all hover:scale-110">
-                            <ShoppingBag className="h-5 w-5" />
-                            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px] font-bold text-black ring-2 ring-black">
-                                0
-                            </span>
-                        </Button>
+                        <Link href="/carrito"> {/* Wrapped cart button in Link */}
+                            <Button variant="ghost" size="icon" className="relative text-white hover:bg-zinc-900 rounded-full transition-all hover:scale-110">
+                                <ShoppingBag className="h-5 w-5" />
+                                {cartCount > 0 && ( // Conditionally render cart count
+                                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[10px] font-black text-black ring-2 ring-black">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </Button>
+                        </Link>
 
                         <div className="md:hidden ml-2">
                             <Sheet>

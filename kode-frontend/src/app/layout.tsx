@@ -4,6 +4,7 @@ import { Providers } from "./providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner";
+import { CartSync } from "@/features/cart/CartSync";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,6 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white min-h-screen flex flex-col`}
       >
         <Providers>
+          <CartSync />
           <Navbar />
           <main className="flex-grow pt-20">
             {children}

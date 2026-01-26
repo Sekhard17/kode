@@ -13,6 +13,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { CouponsModule } from './modules/coupons/coupons.module';
 import { ShippingModule } from './modules/shipping/shipping.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
