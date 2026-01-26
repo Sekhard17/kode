@@ -25,6 +25,8 @@ declare module 'next-auth' {
     }
 }
 
+import 'next-auth/jwt';
+
 declare module 'next-auth/jwt' {
     interface JWT {
         id: string;
@@ -109,7 +111,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 name: (token.name as string | null) ?? null,
                 image: (token.image as string | null) ?? null,
                 role: token.role as Role,
-            };
+            } as any; // Cast to any to satisfy the complex Session['user'] type in beta
             session.accessToken = token.accessToken as string;
             return session;
         },
