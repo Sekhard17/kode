@@ -28,14 +28,6 @@ export class LoginDto {
     password: string;
 }
 
-export class AuthResponseDto {
-    @ApiProperty()
-    accessToken: string;
-
-    @ApiProperty()
-    user: UserResponseDto;
-}
-
 export class UserResponseDto {
     @ApiProperty()
     id: string;
@@ -51,4 +43,12 @@ export class UserResponseDto {
 
     @ApiProperty({ enum: ['CUSTOMER', 'ADMIN'] })
     role: 'CUSTOMER' | 'ADMIN';
+}
+
+export class AuthResponseDto {
+    @ApiProperty()
+    accessToken: string;
+
+    @ApiProperty({ type: UserResponseDto })
+    user: UserResponseDto;
 }

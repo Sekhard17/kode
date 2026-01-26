@@ -12,6 +12,7 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { CouponsModule } from './modules/coupons/coupons.module';
 import { ShippingModule } from './modules/shipping/shipping.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { ShippingModule } from './modules/shipping/shipping.module';
     PaymentsModule,
     CouponsModule,
     ShippingModule,
+    CatalogModule,
   ],
   providers: [
     // Global rate limiting guard
