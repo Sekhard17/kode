@@ -8,7 +8,7 @@ import { useCart } from './hooks/useCart';
 
 export function CartSync() {
     const { data: session } = useSession();
-    const { guestKey } = useCartStore();
+    const { guestKey, clearGuestKey } = useCartStore();
     const { refreshCart } = useCart();
 
     useEffect(() => {
@@ -17,8 +17,7 @@ export function CartSync() {
             if (accessToken && guestKey) {
                 try {
                     await mergeGuestCart(guestKey, accessToken);
-                    // Opcional: limpiar guestKey después de merge si se desea, 
-                    // pero aquí el servidor ya borró el carrito de invitado.
+                    clearGuestKey();
                     refreshCart();
                 } catch (error) {
                     console.error('Merge error:', error);
@@ -27,7 +26,7 @@ export function CartSync() {
         };
 
         sync();
-    }, [session, guestKey]);
+    }, [session, guestKey, clearGuestKey]);
 
     return null;
 }
