@@ -13,7 +13,14 @@ export function Footer() {
                             <span className="text-3xl font-black italic tracking-tighter text-white">KODE<span className="text-orange-500">.</span></span>
                         </Link>
                         <p className="text-zinc-500 max-w-xs mb-8 text-sm leading-relaxed">
-                            Moda urbana premium con actitud. Vestimos a la nueva generación con prendas de alta calidad y diseño minimalista.
+                            <span className="font-extrabold tracking-tight text-white/80">
+                                Decode{' '}
+                                <span className="bg-gradient-to-r from-orange-400 via-orange-500 to-amber-200 bg-clip-text text-transparent">
+                                    your
+                                </span>{' '}
+                                Style.
+                            </span>{' '}
+                            Moda urbana premium con actitud, prendas de alta calidad y diseño minimalista.
                         </p>
                         <div className="flex space-x-6">
                             <Instagram className="h-5 w-5 text-zinc-600 hover:text-white transition-colors cursor-pointer" />

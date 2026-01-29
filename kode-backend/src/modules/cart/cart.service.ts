@@ -11,6 +11,11 @@ export class CartService {
             throw new BadRequestException('Se requiere userId o guestKey');
         }
 
+        // Si tenemos ambos, intentamos fusionar automáticamente (útil para SSR)
+        if (userId && guestKey) {
+            await this.mergeCart(userId, guestKey);
+        }
+
         const cart = await this.prisma.cart.findFirst({
             where: userId ? { userId } : { guestKey },
             include: {
@@ -110,7 +115,9 @@ export class CartService {
             include: { items: true },
         });
 
-        if (!guestCart || guestCart.items.length === 0) return;
+        if (!guestCart || guestCart.items.length === 0) {
+            return { success: true, message: 'Nada que fusionar' };
+        }
 
         let userCart = await this.prisma.cart.findFirst({
             where: { userId },
@@ -145,5 +152,7 @@ export class CartService {
 
         // Limpiar carrito de invitado
         await this.prisma.cart.delete({ where: { id: guestCart.id } });
+
+        return { success: true, message: 'Carrito fusionado correctamente' };
     }
 }

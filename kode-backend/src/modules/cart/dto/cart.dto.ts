@@ -3,7 +3,7 @@ import { IsUUID, IsInt, Min, IsOptional, IsString } from 'class-validator';
 
 export class AddToCartDto {
     @ApiProperty()
-    @IsUUID()
+    @IsString()
     variantId: string;
 
     @ApiProperty({ default: 1 })

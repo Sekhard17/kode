@@ -11,14 +11,22 @@ export function CartSync() {
     const { guestKey, clearGuestKey } = useCartStore();
     const { refreshCart } = useCart();
 
+    const accessToken = session?.accessToken;
+
     useEffect(() => {
         const sync = async () => {
-            const accessToken = (session?.user as any)?.accessToken;
             if (accessToken && guestKey) {
                 try {
                     await mergeGuestCart(guestKey, accessToken);
+                    // Limpiamos la cookie pero NO refrescamos si ya estamos en una página 
+                    // que se encargará o que ya hizo el fetch (como el carrito SSR)
                     clearGuestKey();
-                    refreshCart();
+
+                    // Solo refrescamos el contador global si NO estamos en la página de carrito
+                    // (porque la página de carrito ya tiene sus propios datos frescos)
+                    if (window.location.pathname !== '/carrito') {
+                        refreshCart();
+                    }
                 } catch (error) {
                     console.error('Merge error:', error);
                 }
@@ -26,7 +34,7 @@ export function CartSync() {
         };
 
         sync();
-    }, [session, guestKey, clearGuestKey]);
+    }, [accessToken, guestKey]);
 
     return null;
 }

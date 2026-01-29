@@ -8,9 +8,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Minus, Plus, Trash2, ArrowRight, ShoppingBag } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Cart } from '../../types';
 
-export function CartView() {
-    const { cart, isLoading, updateQuantity, removeItem, subtotal } = useCart();
+interface CartViewProps {
+    initialCart?: Cart | null;
+}
+
+export function CartView({ initialCart = null }: CartViewProps) {
+    const { cart, isLoading, updateQuantity, removeItem, subtotal } = useCart(initialCart);
 
     if (isLoading) {
         return (

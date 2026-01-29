@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { DashboardLayout } from '@/features/dashboard/components/DashboardLayout';
 
 export default async function AdminLayout({
     children,
@@ -16,5 +17,9 @@ export default async function AdminLayout({
         redirect('/');
     }
 
-    return <>{children}</>;
+    return (
+        <DashboardLayout session={session} title="Dashboard">
+            {children}
+        </DashboardLayout>
+    );
 }

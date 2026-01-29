@@ -14,6 +14,8 @@ import { CouponsModule } from './modules/coupons/coupons.module';
 import { ShippingModule } from './modules/shipping/shipping.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { CheckoutModule } from './modules/checkout/checkout.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -56,6 +58,9 @@ import { StorageModule } from './modules/storage/storage.module';
     CouponsModule,
     ShippingModule,
     CatalogModule,
+    CheckoutModule,
+    NotificationsModule,
+    StorageModule,
   ],
   providers: [
     // Global rate limiting guard

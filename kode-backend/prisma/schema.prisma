@@ -122,11 +122,12 @@ model Session {
 }
 
 model VerificationToken {
-  identifier String
-  token      String   @unique
+  identifier String   // email
+  token      String   // code OTP
   expires    DateTime
 
   @@unique([identifier, token])
+  @@index([identifier])
 }
 
 /// =======================

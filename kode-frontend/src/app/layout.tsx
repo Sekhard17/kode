@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
 import { Toaster } from "@/components/ui/sonner";
 import { CartSync } from "@/features/cart/CartSync";
+import { AuthModal } from "@/features/auth/components/auth-modal";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,32 +18,33 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KODE | Minimalist Premium Streetwear",
-  description: "E-commerce de ropa KODE - Moda con actitud y diseño minimalista premium.",
+  title: "KODE | Decode your Style",
+  description: "Decode your Style. E-commerce de ropa KODE con actitud y diseño minimalista premium.",
 };
 
-export default function RootLayout({
+import { auth } from "@/lib/auth";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="es" suppressHydrationWarning className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white min-h-screen flex flex-col`}
       >
-        <Providers>
+        <Providers session={session}>
           <CartSync />
-          <Navbar />
-          <main className="flex-grow pt-20">
+          <ConditionalLayout>
             {children}
-          </main>
-          <Footer />
+          </ConditionalLayout>
           <Toaster position="bottom-right" theme="dark" />
+          <AuthModal />
         </Providers>
       </body>
     </html>
   );
 }
-
-

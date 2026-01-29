@@ -21,7 +21,7 @@ export async function getProducts(filters: CatalogFilters = {}): Promise<Paginat
     if (filters.limit) query.append('limit', filters.limit.toString());
 
     const res = await fetch(`${BACKEND_URL}/api/v1/catalog/products?${query.toString()}`, {
-        next: { revalidate: 60 }, // Cache list for 1 minute
+        next: { revalidate: 0 }, // No cache for immediate updates
     });
     if (!res.ok) throw new Error('Failed to fetch products');
     return res.json();

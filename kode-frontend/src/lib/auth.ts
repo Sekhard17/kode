@@ -1,27 +1,21 @@
-import NextAuth from 'next-auth';
+import NextAuth, { type DefaultSession, type Session } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import type { Role } from '@kode/shared';
 
 // Extend the built-in types
 declare module 'next-auth' {
     interface User {
-        id: string;
-        email: string;
-        name: string | null;
-        image: string | null;
+        id?: string;
         role: Role;
         accessToken: string;
     }
 
     interface Session {
+        accessToken: string;
         user: {
             id: string;
-            email: string;
-            name: string | null;
-            image: string | null;
             role: Role;
-        };
-        accessToken: string;
+        } & DefaultSession['user'];
     }
 }
 
@@ -30,9 +24,6 @@ import 'next-auth/jwt';
 declare module 'next-auth/jwt' {
     interface JWT {
         id: string;
-        email: string;
-        name: string | null;
-        image: string | null;
         role: Role;
         accessToken: string;
     }
@@ -95,7 +86,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token.id = user.id;
+                token.id = user.id as string;
                 token.email = user.email;
                 token.name = user.name;
                 token.image = user.image;
@@ -105,14 +96,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return token;
         },
         async session({ session, token }) {
-            session.user = {
-                id: token.id as string,
-                email: token.email as string,
-                name: (token.name as string | null) ?? null,
-                image: (token.image as string | null) ?? null,
-                role: token.role as Role,
-            } as any; // Cast to any to satisfy the complex Session['user'] type in beta
-            session.accessToken = token.accessToken as string;
+            if (session.user) {
+                session.user.id = token.id;
+                session.user.role = token.role;
+            }
+            session.accessToken = token.accessToken;
             return session;
         },
     },

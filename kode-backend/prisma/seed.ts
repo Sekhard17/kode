@@ -6,6 +6,8 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('🌱 Seeding database...');
 
+    const productImagePath = (fileName: string) => `/productos/${fileName}`;
+
     // 1. Create Admin User
     const adminPassword = await argon2.hash('Admin123!');
     await prisma.user.upsert({
@@ -24,11 +26,12 @@ async function main() {
     const categories = [
         { name: 'Polerones', slug: 'polerones', description: 'Streetwear hoodies' },
         { name: 'Poleras', slug: 'poleras', description: 'Premium cotton tees' },
+        { name: 'Chaquetas', slug: 'chaquetas', description: 'Outerwear y capas' },
         { name: 'Pantalones', slug: 'pantalones', description: 'Comfortable cargo & joggers' },
         { name: 'Accesorios', slug: 'accesorios', description: 'Essential style items' },
     ];
 
-    for (const cat of categories) {
+    for (const [index, cat] of categories.entries()) {
         await prisma.category.upsert({
             where: { slug: cat.slug },
             update: {},
@@ -37,7 +40,7 @@ async function main() {
                 slug: cat.slug,
                 description: cat.description,
                 isActive: true,
-                sortOrder: categories.indexOf(cat),
+                sortOrder: index,
             },
         });
     }
@@ -45,49 +48,68 @@ async function main() {
 
     const poleronesCat = await prisma.category.findUnique({ where: { slug: 'polerones' } });
     const polerasCat = await prisma.category.findUnique({ where: { slug: 'poleras' } });
+    const chaquetasCat = await prisma.category.findUnique({ where: { slug: 'chaquetas' } });
 
     // 3. Create Products
     const products = [
         {
-            name: 'Oversized Hoodie Black',
-            slug: 'oversized-hoodie-black',
-            description: 'Polerón oversized de alto gramaje con bordado minimalista.',
+            name: 'Polerón Morado (Sin Gorro)',
+            slug: 'poleron-singorro-morado',
+            description: 'Polerón premium con calce limpio y vibe urbano.',
             categoryId: poleronesCat?.id,
             isFeatured: true,
             variants: [
-                { sku: 'HOD-BLK-S', size: 'S', priceClp: 45000, stock: 10 },
-                { sku: 'HOD-BLK-M', size: 'M', priceClp: 45000, stock: 15 },
-                { sku: 'HOD-BLK-L', size: 'L', priceClp: 45000, stock: 8 },
+                { sku: 'KODE-POL-MOR-S', size: 'S', priceClp: 44990, stock: 12 },
+                { sku: 'KODE-POL-MOR-M', size: 'M', priceClp: 44990, stock: 18 },
+                { sku: 'KODE-POL-MOR-L', size: 'L', priceClp: 44990, stock: 9 },
             ],
             images: [
-                { path: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800', altText: 'Hoodie Black Front', isPrimary: true },
+                { path: productImagePath('poleron_singorro_morado.png'), altText: 'Polerón morado', isPrimary: true },
             ],
         },
         {
-            name: 'Essential Tee White',
-            slug: 'essential-tee-white',
-            description: 'Polera de algodón Pima con calce perfecto.',
+            name: 'Polera Algodón Verde',
+            slug: 'polera-algodon-verde',
+            description: 'Algodón suave, fit cómodo y diseño minimal.',
             categoryId: polerasCat?.id,
             isFeatured: true,
             variants: [
-                { sku: 'TEE-WHT-M', size: 'M', priceClp: 22000, stock: 20 },
-                { sku: 'TEE-WHT-L', size: 'L', priceClp: 22000, stock: 12 },
+                { sku: 'KODE-TEE-VER-S', size: 'S', priceClp: 22990, stock: 20 },
+                { sku: 'KODE-TEE-VER-M', size: 'M', priceClp: 22990, stock: 16 },
+                { sku: 'KODE-TEE-VER-L', size: 'L', priceClp: 22990, stock: 11 },
             ],
             images: [
-                { path: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800', altText: 'Tee White', isPrimary: true },
+                { path: productImagePath('polera_algodon_verde.png'), altText: 'Polera verde', isPrimary: true },
             ],
         },
         {
-            name: 'Cyberpunk Jacket',
-            slug: 'cyberpunk-jacket',
-            description: 'Chaqueta técnica con detalles reflectantes y múltiples bolsillos.',
-            categoryId: poleronesCat?.id,
+            name: 'Cortavientos Blanco/Negro',
+            slug: 'cortavientos-blanco-negro',
+            description: 'Capa liviana y técnica para el día a día.',
+            categoryId: chaquetasCat?.id,
             isFeatured: false,
             variants: [
-                { sku: 'JKT-CYB-L', size: 'L', priceClp: 85000, stock: 5 },
+                { sku: 'KODE-CORT-BN-S', size: 'S', priceClp: 54990, stock: 8 },
+                { sku: 'KODE-CORT-BN-M', size: 'M', priceClp: 54990, stock: 6 },
+                { sku: 'KODE-CORT-BN-L', size: 'L', priceClp: 54990, stock: 4 },
             ],
             images: [
-                { path: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=800', altText: 'Tech Jacket', isPrimary: true },
+                { path: productImagePath('cortavientos_blancoynegro.png'), altText: 'Cortavientos blanco y negro', isPrimary: true },
+            ],
+        },
+        {
+            name: 'Parka Azul Marino',
+            slug: 'parka-azul-marino',
+            description: 'Outerwear premium para frío, con look limpio y urbano.',
+            categoryId: chaquetasCat?.id,
+            isFeatured: false,
+            variants: [
+                { sku: 'KODE-PARKA-AZ-S', size: 'S', priceClp: 79990, stock: 5 },
+                { sku: 'KODE-PARKA-AZ-M', size: 'M', priceClp: 79990, stock: 4 },
+                { sku: 'KODE-PARKA-AZ-L', size: 'L', priceClp: 79990, stock: 3 },
+            ],
+            images: [
+                { path: productImagePath('parka_azulmarino.png'), altText: 'Parka azul marino', isPrimary: true },
             ],
         },
     ];
@@ -95,7 +117,21 @@ async function main() {
     for (const prod of products) {
         await prisma.product.upsert({
             where: { slug: prod.slug },
-            update: {},
+            update: {
+                name: prod.name,
+                description: prod.description,
+                categoryId: prod.categoryId ?? null,
+                isActive: true,
+                isFeatured: prod.isFeatured,
+                images: {
+                    deleteMany: {},
+                    create: prod.images,
+                },
+                variants: {
+                    deleteMany: {},
+                    create: prod.variants,
+                },
+            },
             create: {
                 name: prod.name,
                 slug: prod.slug,

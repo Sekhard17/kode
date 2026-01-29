@@ -22,13 +22,14 @@ export class StorageService {
      * @param fileName Original filename or custom name
      * @returns Public URL of the uploaded file
      */
-    async uploadFile(file: Buffer, folder: string, fileName: string): Promise<string> {
+    async uploadFile(file: Buffer, folder: string, fileName: string, bucketName?: string): Promise<string> {
         const timestamp = Date.now();
         const cleanFileName = fileName.replace(/[^a-zA-Z0-9.]/g, '_').toLowerCase();
         const path = `${folder}/${timestamp}-${cleanFileName}`;
+        const targetBucket = bucketName || this.bucketName;
 
         const { data, error } = await this.supabase.storage
-            .from(this.bucketName)
+            .from(targetBucket)
             .upload(path, file, {
                 cacheControl: '3600',
                 upsert: false,
@@ -40,7 +41,7 @@ export class StorageService {
         }
 
         const { data: publicUrlData } = this.supabase.storage
-            .from(this.bucketName)
+            .from(targetBucket)
             .getPublicUrl(data.path);
 
         return publicUrlData.publicUrl;

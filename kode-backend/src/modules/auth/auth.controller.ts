@@ -14,7 +14,7 @@ import {
     ApiBearerAuth,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, AuthResponseDto, UserResponseDto } from './dto';
+import { RegisterDto, LoginDto, AuthResponseDto, UserResponseDto, CheckEmailDto, VerifyCodeDto } from './dto';
 import { JwtAuthGuard } from '../../common/guards';
 import { CurrentUser } from '../../common/decorators';
 
@@ -22,6 +22,29 @@ import { CurrentUser } from '../../common/decorators';
 @Controller({ path: 'auth', version: '1' })
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
+
+    @Post('check-email')
+    @ApiOperation({ summary: 'Verificar disponibilidad de email y enviar OTP' })
+    @ApiResponse({ status: 200, description: 'Código enviado' })
+    @ApiResponse({ status: 409, description: 'Email ya registrado' })
+    async checkEmail(@Body() dto: CheckEmailDto) {
+        return this.authService.checkEmail(dto);
+    }
+
+    @Post('verify-code')
+    @ApiOperation({ summary: 'Verificar código OTP' })
+    @ApiResponse({ status: 200, description: 'Código válido' })
+    @ApiResponse({ status: 400, description: 'Código inválido o expirado' })
+    async verifyCode(@Body() dto: VerifyCodeDto) {
+        const isValid = await this.authService.verifyCode(dto);
+        return { valid: isValid };
+    }
+
+    @Post('resend-code')
+    @ApiOperation({ summary: 'Reenviar código OTP' })
+    async resendCode(@Body() dto: CheckEmailDto) {
+        return this.authService.checkEmail(dto);
+    }
 
     @Post('register')
     @ApiOperation({ summary: 'Registrar nuevo usuario' })

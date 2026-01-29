@@ -1,5 +1,6 @@
 import { getProducts, getCategories } from '@/features/catalog/services/catalog.service';
 import { StoreView } from '@/features/catalog/components/views/StoreView';
+import type { ProductListItem } from '@/features/catalog/types';
 
 interface StorePageProps {
     searchParams: Promise<{
@@ -14,21 +15,52 @@ export default async function StorePage({ searchParams }: StorePageProps) {
 
     const currentCategory = categories.find(c => c.slug === categorySlug);
 
-    const { items: products, meta } = await getProducts({
-        categorySlug,
-        page: page ? parseInt(page) : 1,
-        limit: 12
-    });
+    const currentPage = page ? parseInt(page, 10) : 1;
+
+    const [featuredPool, firstPagePool] = await Promise.all([
+        getProducts({
+            categorySlug,
+            isFeatured: true,
+            page: 1,
+            limit: 8,
+        }),
+        getProducts({
+            categorySlug,
+            page: 1,
+            limit: 12,
+        }),
+    ]);
+
+    const listing =
+        currentPage === 1
+            ? firstPagePool
+            : await getProducts({
+                categorySlug,
+                page: currentPage,
+                limit: 12,
+            });
+
+    const seen = new Set<string>();
+    const curated: ProductListItem[] = [];
+    for (const p of [...featuredPool.items, ...firstPagePool.items]) {
+        if (seen.has(p.id)) continue;
+        seen.add(p.id);
+        curated.push(p);
+        if (curated.length >= 5) break;
+    }
+
+    const highlightProducts = curated.length > 0 ? curated : listing.items.slice(0, 5);
 
     return (
         <StoreView
             categories={categories}
-            products={products}
+            products={listing.items}
+            highlightProducts={highlightProducts}
             currentCategory={currentCategory}
             categorySlug={categorySlug}
             meta={{
-                page: meta.page,
-                totalPages: meta.totalPages
+                page: listing.meta.page,
+                totalPages: listing.meta.totalPages
             }}
         />
     );

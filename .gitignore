@@ -11,6 +11,9 @@ out/
 # Environment
 .env
 .env.local
+
+# Do not commit non-commercial licensed assets
+kode-frontend/public/jumper_3/
 .env.*.local
 
 # IDE

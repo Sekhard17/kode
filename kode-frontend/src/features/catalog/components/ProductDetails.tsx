@@ -34,13 +34,14 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         try {
             setIsAdding(true);
             const guestKey = getGuestKey();
-            const accessToken = (session?.user as any)?.accessToken;
+            const accessToken = session?.accessToken;
 
             await addItemToCart(selectedVariant.id, 1, accessToken, guestKey);
             toast.success('Producto añadido al carrito');
             refreshCart();
-        } catch (error: any) {
-            toast.error(error.message || 'Error al añadir al carrito');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Error al añadir al carrito';
+            toast.error(message);
         } finally {
             setIsAdding(false);
         }

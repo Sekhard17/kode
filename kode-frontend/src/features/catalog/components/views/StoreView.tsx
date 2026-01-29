@@ -6,10 +6,12 @@ import Link from 'next/link';
 import { SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Category, ProductListItem } from '../../types';
+import { StoreMosaic } from '@/features/catalog/components/StoreMosaic';
 
 interface StoreViewProps {
     categories: Category[];
     products: ProductListItem[];
+    highlightProducts?: ProductListItem[];
     currentCategory?: Category;
     categorySlug?: string;
     meta: {
@@ -21,6 +23,7 @@ interface StoreViewProps {
 export function StoreView({
     categories,
     products,
+    highlightProducts = [],
     currentCategory,
     categorySlug,
     meta
@@ -30,8 +33,8 @@ export function StoreView({
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-24">
                 {/* Header Section */}
                 <div className="mb-12 border-b border-zinc-900 pb-12">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                        <div className="max-w-2xl">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
+                        <div className="lg:col-span-5 max-w-2xl">
                             <h2 className="text-sm font-black uppercase tracking-[0.4em] text-orange-500 mb-4">Catálogo</h2>
                             <h1 className="text-6xl md:text-8xl font-black italic tracking-tighter text-white leading-none uppercase">
                                 {currentCategory ? currentCategory.name : 'La Tienda'}
@@ -41,7 +44,11 @@ export function StoreView({
                             </p>
                         </div>
 
-                        <div className="flex items-center space-x-2">
+                        <div className="lg:col-span-7 hidden lg:block">
+                            <StoreMosaic products={highlightProducts} />
+                        </div>
+
+                        <div className="flex items-center space-x-2 lg:col-span-12">
                             <span className="text-xs font-bold uppercase tracking-widest text-zinc-600 mr-2">Filtros</span>
                             <Button variant="outline" size="sm" className="border-zinc-800 text-white rounded-full h-12 w-12 flex items-center justify-center p-0">
                                 <SlidersHorizontal className="h-4 w-4" />

@@ -1,5 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, Length } from 'class-validator';
+
+export class CheckEmailDto {
+    @ApiProperty({ example: 'usuario@ejemplo.com' })
+    @IsEmail({}, { message: 'Email inválido' })
+    email: string;
+}
+
+export class VerifyCodeDto {
+    @ApiProperty({ example: 'usuario@ejemplo.com' })
+    @IsEmail({}, { message: 'Email inválido' })
+    email: string;
+
+    @ApiProperty({ example: '123456' })
+    @IsString()
+    @Length(6, 6, { message: 'El código debe tener 6 dígitos' })
+    code: string;
+}
 
 export class RegisterDto {
     @ApiProperty({ example: 'usuario@ejemplo.com' })
@@ -15,6 +32,16 @@ export class RegisterDto {
     @IsString()
     @IsOptional()
     name?: string;
+
+    @ApiProperty({ example: '123456', description: 'Código de verificación OTP' })
+    @IsString()
+    @Length(6, 6, { message: 'El código debe tener 6 dígitos' })
+    verificationCode: string;
+
+    @ApiProperty({ example: 'https://...', required: false })
+    @IsString()
+    @IsOptional()
+    image?: string;
 }
 
 export class LoginDto {
