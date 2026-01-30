@@ -3,6 +3,7 @@ import { Category, ProductListItem, ProductDetail, PaginatedResponse, CatalogFil
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
 
 export async function getCategories(): Promise<Category[]> {
+    console.log('[CatalogService] Fetching categories from:', `${BACKEND_URL}/api/v1/catalog/categories`);
     const res = await fetch(`${BACKEND_URL}/api/v1/catalog/categories`, {
         next: { revalidate: 3600 }, // Cache categories for 1 hour
     });
