@@ -156,12 +156,7 @@ export function CartView({ initialCart = null }: CartViewProps) {
                             </Button>
                         </Link>
 
-                        <div className="mt-8 pt-6 border-t border-zinc-800">
-                            <div className="flex items-center space-x-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-                                <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                                <span>Seguridad Garantizada con Flow</span>
-                            </div>
-                        </div>
+
                     </Card>
                 </div>
             </div>
